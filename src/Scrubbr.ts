@@ -1,8 +1,8 @@
-import { JSONSchema7 } from 'json-schema';
-import * as tsj from 'ts-json-schema-generator';
-import { LogLevel, Logger } from './Logger';
-import { ScrubbrState } from './ScrubbrState';
-import { UseType } from './helpers';
+import { JSONSchema7 } from "json-schema";
+import * as tsj from "ts-json-schema-generator";
+import { LogLevel, Logger } from "./Logger";
+import { ScrubbrState } from "./ScrubbrState";
+import { UseType } from "./helpers";
 
 export type TypeSerializer = (data: any, context: any) => any | Promise<any>;
 export type PathSerializer = (
@@ -58,12 +58,12 @@ export default class Scrubbr {
    */
   loadSchema(schema: string | JSONSchema7) {
     // Load typescript file
-    if (typeof schema == 'string') {
+    if (typeof schema == "string") {
       this.logger.debug(`Loading typescript file: ${schema}`);
       schema = tsj
         .createGenerator({
           path: schema,
-          expose: 'all',
+          expose: "all",
         })
         .createSchema();
     }
@@ -71,7 +71,7 @@ export default class Scrubbr {
     // Set JSON Schema
     this.schema = schema;
     if (!this.schema.definitions) {
-      throw new Error('No type definitions were found in your schema.');
+      throw new Error("No type definitions were found in your schema.");
     }
   }
 
@@ -105,7 +105,7 @@ export default class Scrubbr {
     data: Object,
     schemaType: string,
     context: any = null
-  ): Promise<Object> {
+  ): Promise<any> {
     this.logger.debug(`Serializing data with schema: '${schemaType}'`);
     const definitions = this.schema?.definitions || {};
 
@@ -132,7 +132,7 @@ export default class Scrubbr {
       return serializedNode;
     } else if (Array.isArray(serializedNode)) {
       return await this.walkArrayNode(serializedNode, state);
-    } else if (typeof serializedNode === 'object') {
+    } else if (typeof serializedNode === "object") {
       return await this.walkObjectNode(serializedNode, state);
     }
     return serializedNode;
@@ -148,7 +148,7 @@ export default class Scrubbr {
     const nodeProps = Object.entries(node);
     const schemaProps = state.schemaDef.properties || {};
     const filteredNode: ObjectNode = {};
-    const pathPrefix = state.path ? `${state.path}.` : '';
+    const pathPrefix = state.path ? `${state.path}.` : "";
 
     for (let i = 0; i < nodeProps.length; i++) {
       let [name, value] = nodeProps[i];
@@ -251,7 +251,7 @@ export default class Scrubbr {
       if (!refPath) {
         return;
       }
-      const typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
+      const typeName = refPath.replace(/#\/definitions\/(.*)/, "$1");
       if (definitions[typeName]) {
         typeNames.push(typeName);
       } else {
