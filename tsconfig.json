@@ -1,0 +1,20 @@
+{
+  // see https://www.typescriptlang.org/tsconfig
+  "compilerOptions": {
+    "sourceRoot": "src",
+    "outDir": "./dist",
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+  },
+  "include": ["./src/**/*.ts", "./test/**.ts"],
+  "exclude": ["node_modules", "dist"]
+}
