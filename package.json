@@ -1,5 +1,5 @@
 {
-  "name": "json-scrubber",
+  "name": "scrubbr",
   "version": "0.0.1",
   "description": "JSON transformer and serializer.",
   "main": "dist/index.js",
@@ -12,8 +12,6 @@
   "author": "Jeremy Gillick",
   "license": "MIT",
   "dependencies": {
-    "ajv": "^8.6.0",
-    "json-schema-ref-parser": "^9.0.9",
     "ts-json-schema-generator": "^0.93.0",
     "ts-node": "^10.0.0"
   },
