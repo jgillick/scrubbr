@@ -1,12 +1,12 @@
 # Scrubbr
 
-Serialize and sanitize your JSON data using TypeScript or JSON Schema.
+Serialize and sanitize JSON API data using your TypeScript as the schema.
 
 ## Why
 
 When sending data from your webserver to the client, you don't want to send ALL the data that was fetched from your data source. It could contain sensitive information, or you might want to transform it to a difference format that easier for the client to process. Doing this manually can be a lot of work and leaves your data open to dangerous edge cases.
 
-If you're already using TypeScript, you can define what the data _should_ look like, and Scrubbr will translate it automatically. You can also define custom serializers that will be used for particular TypeScript types, anywhere they're encountered in your data.
+If you're already using TypeScript, you can define what the data _should_ look like, and Scrubbr will translate it automatically. You can also define custom serializers to translate particular TypeScript types anywhere they're encountered in your data.
 
 ## Quickstart
 
@@ -15,6 +15,7 @@ Define a TypeScript file as the master schema, and then use it to serialize your
 ```typescript
 import Scrubbr from "scrubbr";
 
+// Load the typescript file and convert it to a schema that will be used later.
 // Performance note: this is a synchronous file load. Load early and cache to a shared variable.
 const scrubbr = new Scrubbr("./schema.ts");
 
