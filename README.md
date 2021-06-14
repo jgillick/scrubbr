@@ -13,7 +13,7 @@ If you're already using TypeScript, you can define what the data _should_ look l
 Define a TypeScript file as the master schema, and then use it to serialize your data:
 
 ```typescript
-import Scrubbr from "../src/";
+import Scrubbr from "scrubbr";
 
 // Performance note: this is a synchronous file load. Load early and cache to a shared variable.
 const scrubbr = new Scrubbr("./schema.ts");
@@ -96,9 +96,9 @@ export type User = {
 Now let's scrub the data
 
 ```typescript
-import {createScrubbr} from 'scrubbr';
+import Scrubbr from 'scrubbr';
 
-const scrubbr = createScrubbr('./schema.ts');
+const scrubbr = Scrubbr('./schema.ts');
 
 async function api() {
   const data = {...} // see above example
