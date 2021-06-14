@@ -2,6 +2,8 @@
 
 Serialize and sanitize JSON API data using your TypeScript as the schema.
 
+![Simple Example](./example.png)
+
 ## Why
 
 When sending data from your webserver to the client, you don't want to send ALL the data that was fetched from your data source. It could contain sensitive information, or you might want to transform it to a difference format that easier for the client to process. Doing this manually can be a lot of work and leaves your data open to dangerous edge cases.
@@ -13,17 +15,17 @@ If you're already using TypeScript, you can define what the data _should_ look l
 Define a TypeScript file as the master schema, and then use it to serialize your data:
 
 ```typescript
-import Scrubbr from "scrubbr";
+import Scrubbr from 'scrubbr';
 
 // Load the typescript file and convert it to a schema that will be used later.
 // Performance note: this is a synchronous file load. Load early and cache to a shared variable.
-const scrubbr = new Scrubbr("./schema.ts");
+const scrubbr = new Scrubbr('./schema.ts');
 
 async function api() {
   const data = await dataService.getPosts();
 
   // Serialize the data based on the PostList type defined in schema.ts
-  return await scrubbr.serialize(data, "PostList");
+  return await scrubbr.serialize(data, 'PostList');
 }
 ```
 
