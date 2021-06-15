@@ -1,7 +1,7 @@
 {
   "name": "scrubbr",
   "version": "0.0.1",
-  "description": "JSON transformer and serializer.",
+  "description": "Serialize your JSON API data using your TypeScript as the schema.",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

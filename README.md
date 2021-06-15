@@ -1,6 +1,6 @@
 # Scrubbr
 
-![Tests](https://github.com/jgillick/scrubbr/actions/workflows/test.yml/badge.svg)
+[![Tests](https://github.com/jgillick/scrubbr/actions/workflows/test.yml/badge.svg)](https://github.com/jgillick/scrubbr/actions)
 
 Serialize and sanitize JSON API data using your TypeScript as the schema.
 
