@@ -81,20 +81,20 @@ function getUsers() {
 
 # Custom Serializers
 
-You can define custom functions to change how the data is serialized.
+You can define custom functions to affect how the data is serialized.
 
 ## Type Serializer
 
 This function is called every time a matching TypeScript type is encountered.
 
-For example, if you want to use another type to serialize a user who is logged in:
+For example, if you want to use another TypeScript type to serialize a logged-in user:
 
 ```typescript
 import Scrubbr, { useType } from 'scrubbr';
 
 // Called ever time scrubbr finds a User type object
 scrubbr.addTypeSerializer('User', (data, state) => {
-  // This uses the context object that can be passed when serializing (see below)
+  // `context` is a value you pass to scrubbr.serialize (see below)
   if (data.id === state.context.loggedInUserId) {
     return useType('UserPrivileged');
   }
@@ -103,7 +103,7 @@ scrubbr.addTypeSerializer('User', (data, state) => {
   return data;
 });
 
-// Context is passed to the serializers
+// Context can be anything you want
 const context = {
   loggedInUserId: 10,
 };
@@ -122,7 +122,7 @@ import Scrubbr, { useType } from 'scrubbr';
 
 // This function is called ever time scrubbr finds a User type object
 scrubbr.addPathSerializer('User', (data, state) => {
-  // Convert all date-like strings from UTC to local time
+  // Convert date-like strings from UTC to local time
   const path = state.path;
   if (path.match(/\.createdAt$/)) {
     return moment(data).tz(state.context.timezone).format();
@@ -136,7 +136,7 @@ const context = {
 const serialized = await scrubbr.serialize(data, 'PostList', context);
 ```
 
-# Try the example yourself
+# Try it yourself
 
 It's easy to try it yourself with the included example in `example/index.ts`. Just clone this repo, install the dependencies (`npm install`) and then run the example app with:
 
