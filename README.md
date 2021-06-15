@@ -39,14 +39,15 @@ type User = {
 ```typescript
 import Scrubbr from 'scrubbr';
 
-// Load the typescript file and convert it to a schema that will be used later.
-// Performance note: this is a synchronous file load. Load early and cache to a shared variable.
+// Convert the typescript file to a schema
+// PERFORMANCE NOTE: this is a synchronous call.
+// Load early and cache to a shared variable.
 const scrubbr = new Scrubbr('./schema.ts');
 
 async function api() {
   const data = getUsers();
 
-  // Serialize the data based on the PostList type defined in schema.ts
+  // Serialize the data based on the UserList type defined in schema.ts
   return await scrubbr.serialize(data, 'UserList');
 }
 
@@ -141,4 +142,31 @@ It's easy to try it yourself with the included example in `example/index.ts`. Ju
 
 ```shell
 npm run example
+```
+
+# Advanced Topics
+
+## Validation
+
+For the sake of performance and simplicity, scrubber does not perform a schema validation step (it outputs data, not validates). However, under the hood scrubbr converts TypeScript to JSONSchema (via the great [ts-json-schema-generator](https://www.npmjs.com/package/ts-json-schema-generator) package). So you can easily use [ajv](https://www.npmjs.com/package/ajv) to validate the serialized object.
+
+```typescript
+import Ajv from 'ajv';
+import Scrubbr from 'scrubbr';
+
+const scrubbr = new Scrubbr('./schema.ts');
+
+async function main() {
+  // Serialize
+  const output = await scrubbr.serialize(data, 'UserList');
+  const jsonSchema = scrubbr.getSchema();
+
+  // Validate
+  const ajv = new Ajv();
+  const schemaValidator = ajv.compile(jsonSchema);
+  const isValid = schemaValidator(output);
+  if (!isValid) {
+    console.error(schemaValidator.errors);
+  }
+}
 ```
