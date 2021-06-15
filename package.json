@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "dev": "ts-node ./test/index.ts",
+    "example": "ts-node ./example/index.ts",
     "schema": "ts-json-schema-generator -p ./test/typescript/schema.ts -o ./dist/schema.json -e all"
   },
   "author": "Jeremy Gillick",

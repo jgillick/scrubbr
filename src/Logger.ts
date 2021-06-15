@@ -17,7 +17,7 @@ export class Logger {
     return Array(num).fill('  ').join('');
   }
 
-  log(message: string, indent: number = 0) {
+  info(message: string, indent: number = 0) {
     if (this.logLevel < LogLevel.INFO) {
       return;
     }

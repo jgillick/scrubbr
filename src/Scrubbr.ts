@@ -25,8 +25,8 @@ export default class Scrubbr {
   options: Options;
   private logger: Logger;
   private schema: JSONSchema7 = {};
-  typeSerializers = new Map<string, TypeSerializer[]>();
-  pathSerializers: PathSerializer[] = [];
+  private typeSerializers = new Map<string, TypeSerializer[]>();
+  private pathSerializers: PathSerializer[] = [];
 
   constructor(
     schema: string | JSONSchema7,
@@ -64,7 +64,7 @@ export default class Scrubbr {
   loadSchema(schema: string | JSONSchema7) {
     // Load typescript file
     if (typeof schema == 'string') {
-      this.logger.debug(`Loading typescript file: ${schema}`);
+      this.logger.info(`Loading typescript file: ${schema}`);
 
       if (!fs.existsSync(schema)) {
         throw new Error(
@@ -118,7 +118,7 @@ export default class Scrubbr {
     schemaType: string,
     context: any = null
   ): Promise<any> {
-    this.logger.debug(`Serializing data with schema: '${schemaType}'`);
+    this.logger.info(`Serializing data with TS type: '${schemaType}'`);
     const definitions = this.schema?.definitions || {};
 
     const schema = definitions[schemaType] as JSONSchema7;
@@ -274,11 +274,15 @@ export default class Scrubbr {
       if (!refPath) {
         return;
       }
-      const typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
+      let typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
+      typeName = decodeURI(typeName);
       if (definitions[typeName]) {
         typeNames.push(typeName);
       } else {
-        this.logger.debug(`No type found for '${typeNames}'`, state.nesting);
+        this.logger.warn(
+          `No type definitions found for '${typeNames}'`,
+          state.nesting
+        );
       }
     });
 
@@ -302,8 +306,9 @@ export default class Scrubbr {
         }
       });
 
-      this.logger.debug(
-        `Chose type '${chosenType}' because it has the fewest properties (you can override this selection with the 'useType()' function.).`,
+      const others = typeNames.filter((n) => n != chosenType);
+      this.logger.warn(
+        `Guessing at type '${chosenType}' over ${others} because it has the fewest properties (you can explicitly override this selection with the 'useType()' function.).`,
         state.nesting
       );
     } else {
