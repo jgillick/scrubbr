@@ -47,9 +47,9 @@ export default class Scrubbr {
   }
 
   /**
-   * Create new scrubber extended off of this one.
+   * Create new scrubber with the same options and custom serializers
    */
-  newScrubbr(options: Options): Scrubbr {
+  clone(options: Options): Scrubbr {
     return new Scrubbr(
       this.schema,
       options,
@@ -97,7 +97,7 @@ export default class Scrubbr {
   /**
    * Add a function to serialize schema types
    */
-  typeSerializer(typeName: string, serializer: TypeSerializer) {
+  addTypeSerializer(typeName: string, serializer: TypeSerializer) {
     const serializerList = this.typeSerializers.get(typeName) || [];
     serializerList.push(serializer);
     this.typeSerializers.set(typeName, serializerList);
@@ -106,7 +106,7 @@ export default class Scrubbr {
   /**
    * Add a function to serialize an object path.
    */
-  pathSerializer(serializer: PathSerializer) {
+  addPathSerializer(serializer: PathSerializer) {
     this.pathSerializers.push(serializer);
   }
 

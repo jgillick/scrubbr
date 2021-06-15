@@ -16,7 +16,7 @@ describe('Path serializer', () => {
   beforeEach(() => {
     serializerFn = jest.fn((data, _state) => data);
     scrubbr = new Scrubbr(`${__dirname}/pathSerializer.schema.ts`);
-    scrubbr.pathSerializer(serializerFn);
+    scrubbr.addPathSerializer(serializerFn);
   });
 
   test('call serializer for every node of the object', async () => {

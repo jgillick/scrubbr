@@ -11,8 +11,8 @@ describe('Union types', () => {
 
     // Track what type is chosen for ever path node
     firstSerializerFn = jest.fn((data, _state) => data);
-    scrubbr.pathSerializer(firstSerializerFn);
-    scrubbr.pathSerializer((data, state) => {
+    scrubbr.addPathSerializer(firstSerializerFn);
+    scrubbr.addPathSerializer((data, state) => {
       pathTypes.set(state.path, state.schemaType);
       return data;
     });

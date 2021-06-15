@@ -56,7 +56,7 @@ async function main() {
     };
 
     // Show full user for the logged-in user
-    scrubbr.typeSerializer('UserPublic', (data, state) => {
+    scrubbr.addTypeSerializer('UserPublic', (data, state) => {
       if (data.id === state.context.loggedInUserId) {
         return useType('UserPrivileged');
       }

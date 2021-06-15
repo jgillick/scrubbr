@@ -8,14 +8,16 @@ Serializing and sanitizing data sent from the webserver to the client shouldn't 
 
 ## Install
 
-TBD (project is still in pre-alpha)
+```shell
+npm i -S scrubbr
+```
 
 ## Quickstart
 
-Define a TypeScript file as your master schema:
+1. Define a TypeScript file as your master schema:
 
 ```typescript
-// ./schema.ts
+// schema.ts
 
 type UserList = {
   users: User[];
@@ -27,7 +29,7 @@ type User = {
 };
 ```
 
-Then load it into Scrubbr and serialize your data:
+2. Load it into Scrubbr and serialize your data:
 
 ```typescript
 import Scrubbr from 'scrubbr';
@@ -58,7 +60,7 @@ function getUsers() {
 }
 ```
 
-Finally, here's your serialized output. Notice that the sensitive properties, that were not included in your TypeScript type, (email & password) were automatically removed:
+3. Output
 
 ```json
 {
@@ -69,4 +71,69 @@ Finally, here's your serialized output. Notice that the sensitive properties, th
     }
   ]
 }
+```
+
+# Custom Serializers
+
+You can define custom functions to change how the data is serialized.
+
+## Type Serializer
+
+This function is called every time a matching TypeScript type is encountered.
+
+For example, if you want to use another type to serialize a user who is logged in:
+
+```typescript
+import Scrubbr, { useType } from 'scrubbr';
+
+// Called ever time scrubbr finds a User type object
+scrubbr.addTypeSerializer('User', (data, state) => {
+  // This uses the context object that can be passed when serializing (see below)
+  if (data.id === state.context.loggedInUserId) {
+    return useType('UserPrivileged');
+  }
+
+  // You can also manually transform the data here
+  return data;
+});
+
+// Context is passed to the serializers
+const context = {
+  loggedInUserId: 10,
+};
+const serialized = await scrubbr.serialize(data, 'PostList', context);
+```
+
+## Path serializer
+
+This serializer is called at each node of the data object regardless of type. It's called a path serializer because you'll use the `state.path` value to determine which node you're serializing.
+
+In this example we want to convert every `createdAt` date value to the local timezone.
+
+```typescript
+import moment from 'moment-timezone';
+import Scrubbr, { useType } from 'scrubbr';
+
+// This function is called ever time scrubbr finds a User type object
+scrubbr.addPathSerializer('User', (data, state) => {
+  // Convert all date-like strings from UTC to local time
+  const path = state.path;
+  if (path.match(/\.createdAt$/)) {
+    return moment(data).tz(state.context.timezone).format();
+  }
+  return data;
+});
+
+const context = {
+  timezone: 'America/Los_Angeles',
+};
+const serialized = await scrubbr.serialize(data, 'PostList', context);
+```
+
+# Try the example yourself
+
+It's easy to try it yourself with the included example in `example/index.ts`. Just clone this repo, install the dependencies (`npm install`) and then run the example app with:
+
+```shell
+npm run example
 ```
