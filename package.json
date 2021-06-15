@@ -1,7 +1,7 @@
 {
   "name": "scrubbr",
   "version": "0.0.1-alpha.2",
-  "description": "Serialize your JSON API data using your TypeScript as the schema.",
+  "description": "Serialize and sanitize JSON data using TypeScript.",
   "repository": "https://github.com/jgillick/scrubbr",
   "main": "dist/index.js",
   "scripts": {
@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
-    "@types/tmp": "^0.2.0",
     "jest": "^27.0.4",
     "ts-jest": "^27.0.3",
     "typescript": "^4.3.2"
