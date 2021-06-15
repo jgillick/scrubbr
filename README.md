@@ -1,10 +1,13 @@
 # Scrubbr
 
 [![Tests](https://github.com/jgillick/scrubbr/actions/workflows/test.yml/badge.svg)](https://github.com/jgillick/scrubbr/actions)
+[![npm version](https://img.shields.io/npm/v/scrubbr)](https://badge.fury.io/js/scrubbr)
+
+<!-- [![downloads](https://img.shields.io/npm/dm/Scrubbr)](https://www.npmjs.com/package/scrubbr) -->
 
 Serialize and sanitize JSON API data using your TypeScript as the schema.
 
-![Simple Example](./example.png)
+![Simple Example](https://github.com/jgillick/scrubbr/raw/main/example.png)
 
 Serializing and sanitizing data sent from the webserver to the client shouldn't be hard. If you're already using TypeScript, you have everything you need. Scrubbr will use your TypeScript types to deeply transform and sanitize your data.
 
