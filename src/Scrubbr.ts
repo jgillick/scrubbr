@@ -238,9 +238,11 @@ export default class Scrubbr {
     data = await this.runTypeSerializers(data, state);
 
     // If the type is an alias to a union, walk one level deeper
+    const { schemaDef } = state;
     if (
-      !state.schemaDef.properties &&
-      (state.schemaDef.allOf || state.schemaDef.anyOf || state.schemaDef.oneOf)
+      schemaDef &&
+      !schemaDef.properties &&
+      (schemaDef.allOf || schemaDef.anyOf || schemaDef.oneOf)
     ) {
       this.logger.debug(
         `'${state.schemaType}' appears to be an union type.`,
@@ -257,9 +259,13 @@ export default class Scrubbr {
    */
   private getNodeType(state: ScrubbrState): string | null {
     const schema = state.schemaDef;
-    let schemaList = (schema.allOf ||
-      schema.anyOf ||
-      schema.oneOf ||
+    if (!schema) {
+      return null;
+    }
+
+    let schemaList = (schema?.allOf ||
+      schema?.anyOf ||
+      schema?.oneOf ||
       []) as JSONSchema7[];
     const definitions = this.schema.definitions || {};
 
