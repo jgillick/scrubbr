@@ -1,6 +1,6 @@
 {
   "name": "scrubbr",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "Serialize your JSON API data using your TypeScript as the schema.",
   "repository": "https://github.com/jgillick/scrubbr",
   "main": "dist/index.js",
