@@ -1,6 +1,7 @@
-import Scrubbr from './Scrubbr';
+import Scrubbr from "./Scrubbr";
 
-export { LogLevel } from './Logger';
-export { useType } from './helpers';
+export { ScrubbrState } from "./ScrubbrState";
+export { LogLevel } from "./Logger";
+export { useType } from "./helpers";
 
 export default Scrubbr;

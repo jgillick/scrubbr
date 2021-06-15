@@ -1,24 +1,19 @@
-import { ScrubbrState } from './ScrubbrState';
-
 /**
- * Inform the serializer to use a particular type on a data node
+ * Override the type that's being serialized.
+ * The return value from this function should be used by custom serializers.
+ *
+ * @example
+ *  // Convert all `User` types to `RestrictedUser`
+ *  scrubbr.typeSerializer('User', (data, state) => useType('RestrictedUser'));
+ *
  */
-export function useType(
-  typeName: string,
-  data: any,
-  state: ScrubbrState
-): UseType {
-  return new UseType(typeName, data, state);
+export function useType(typeName: string): UseType {
+  return new UseType(typeName);
 }
 
 export class UseType {
-  data: any;
   typeName: string;
-  state: ScrubbrState;
-
-  constructor(typeName: string, data: any, state: ScrubbrState) {
+  constructor(typeName: string) {
     this.typeName = typeName;
-    this.data = data;
-    this.state = state;
   }
 }

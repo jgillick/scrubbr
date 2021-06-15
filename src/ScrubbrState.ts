@@ -2,6 +2,7 @@ import { JSONSchema7 } from 'json-schema';
 
 export class ScrubbrState {
   path: string = '/';
+  rootSchemaType: string = '';
   schemaType: string | null = null;
   schemaDef: JSONSchema7;
   data: any;
@@ -26,6 +27,7 @@ export class ScrubbrState {
       this.context,
       path
     );
+    state.rootSchemaType = this.rootSchemaType;
     state.nesting = this.nesting + 1;
     return state;
   }

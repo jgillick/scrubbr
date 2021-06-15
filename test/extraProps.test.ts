@@ -1,20 +1,7 @@
 import "jest";
-import { writeTS } from "../setup";
-import Scrubbr from "../../src/";
+import Scrubbr from "../src/";
 
-const tsFile = writeTS(`
-  type User = {
-    id: number;
-    name: number;
-  };
-  type Post = {
-    user: User;
-  };
-  type Invite = {
-    guests: User[];
-  }
-`);
-const scrubbr = new Scrubbr(tsFile);
+const scrubbr = new Scrubbr(`${__dirname}/extraProps.schema.ts`);
 
 describe("do not serialize properties not in schema", () => {
   test("root object", async () => {
