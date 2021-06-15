@@ -170,3 +170,7 @@ async function main() {
   }
 }
 ```
+
+# License
+
+[MIT](https://github.com/ajv-validator/ajv/blob/HEAD/LICENSE)
