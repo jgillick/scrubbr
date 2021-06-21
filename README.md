@@ -48,7 +48,7 @@ async function api() {
   const data = getUsers();
 
   // Serialize the data based on the UserList type defined in schema.ts
-  return await scrubbr.serialize(data, 'UserList');
+  return await scrubbr.serialize('UserList', data);
 }
 
 // Raw unsanitized data
@@ -107,7 +107,7 @@ scrubbr.addTypeSerializer('User', (data, state) => {
 const context = {
   loggedInUserId: 10,
 };
-const serialized = await scrubbr.serialize(data, 'PostList', context);
+const serialized = await scrubbr.serialize('PostList', data, context);
 ```
 
 ## Path serializer
@@ -133,7 +133,7 @@ scrubbr.addPathSerializer('User', (data, state) => {
 const context = {
   timezone: 'America/Los_Angeles',
 };
-const serialized = await scrubbr.serialize(data, 'PostList', context);
+const serialized = await scrubbr.serialize('PostList', data, context);
 ```
 
 # Try it yourself
@@ -158,7 +158,7 @@ const scrubbr = new Scrubbr('./schema.ts');
 
 async function main() {
   // Serialize
-  const output = await scrubbr.serialize(data, 'UserList');
+  const output = await scrubbr.serialize('UserList', data);
   const jsonSchema = scrubbr.getSchema();
 
   // Validate
