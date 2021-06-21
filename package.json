@@ -1,6 +1,6 @@
 {
   "name": "scrubbr",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "Serialize and sanitize JSON data using TypeScript.",
   "repository": "https://github.com/jgillick/scrubbr",
   "main": "dist/index.js",

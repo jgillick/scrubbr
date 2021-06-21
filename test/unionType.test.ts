@@ -19,40 +19,34 @@ describe('Union types', () => {
   });
 
   test('automatically choose between two types', async () => {
-    await scrubbr.serialize(
-      {
-        value: {
-          nodeA: 'foo',
-          nodeB: 'bar',
-        },
+    await scrubbr.serialize('SimpleTypeUnion', {
+      value: {
+        nodeA: 'foo',
+        nodeB: 'bar',
       },
-      'SimpleTypeUnion'
-    );
+    });
 
     // OptionTwo has fewer properties
     expect(pathTypes.get('value')).toBe('OptionTwo');
   });
 
   test('choose between primitive types', async () => {
-    await scrubbr.serialize({ value: 'test' }, 'PrimitiveUnion');
+    await scrubbr.serialize('PrimitiveUnion', { value: 'test' });
     expect(pathTypes.get('value')).toBe(null);
   });
 
   test('union between TypeScript type and primitive', async () => {
-    await scrubbr.serialize({ value: 'test' }, 'MixedUnion');
+    await scrubbr.serialize('MixedUnion', { value: 'test' });
     expect(pathTypes.get('value')).toBe('OptionOne');
   });
 
   test('Aliased union type', async () => {
-    await scrubbr.serialize(
-      {
-        value: {
-          nodeA: 'foo',
-          nodeB: 'bar',
-        },
+    await scrubbr.serialize('UnionAlias', {
+      value: {
+        nodeA: 'foo',
+        nodeB: 'bar',
       },
-      'UnionAlias'
-    );
+    });
     expect(pathTypes.get('value')).toBe('OptionTwo');
   });
 
@@ -63,15 +57,12 @@ describe('Union types', () => {
       }
       return data;
     });
-    const output = await scrubbr.serialize(
-      {
-        value: {
-          nodeA: 'foo',
-          nodeB: 'bar',
-        },
+    const output = await scrubbr.serialize('SimpleTypeUnion', {
+      value: {
+        nodeA: 'foo',
+        nodeB: 'bar',
       },
-      'SimpleTypeUnion'
-    );
+    });
     expect(pathTypes.get('value')).toBe('OptionOne');
     expect(output.value.nodeA).toBe('foo');
     expect(output.value.nodeB).toBe('bar');

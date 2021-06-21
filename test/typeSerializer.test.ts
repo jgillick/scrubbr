@@ -21,7 +21,7 @@ describe('Type serializers', () => {
       child: [{ node: { value: 'baz' } }, { node: { value: 'boo' } }], // TargetTypeA[]
       other: { value: 'nope' }, // TargetTypeB
     };
-    await scrubbr.serialize(data, 'TypeSerializerTest');
+    await scrubbr.serialize('TypeSerializerTest', data);
 
     expect(serializerFn).toHaveBeenCalledTimes(3);
     expect(values).toEqual(expect.arrayContaining(['foo', 'baz', 'boo']));
@@ -38,7 +38,7 @@ describe('Type serializers', () => {
       child: [{ node: { value: 'baz' } }, { node: { value: 'boo' } }], // TargetTypeA[]
       other: { value: 'nope' }, // TargetTypeB
     };
-    await scrubbr.serialize(data, 'TypeSerializerTest');
+    await scrubbr.serialize('TypeSerializerTest', data);
     expect(typeBSerializerFn).toHaveBeenCalledTimes(4);
   });
 
@@ -52,7 +52,7 @@ describe('Type serializers', () => {
     const data = {
       node: { value: 'foo' }, // TargetTypeA | TargetTypeB
     };
-    await scrubbr.serialize(data, 'TypeSerializerUnionTest');
+    await scrubbr.serialize('TypeSerializerUnionTest', data);
     expect(typeASerializerFn).toHaveBeenCalledTimes(0);
     expect(typeBSerializerFn).toHaveBeenCalledTimes(1);
   });

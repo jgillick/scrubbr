@@ -15,22 +15,27 @@ export type PathSerializer = (
   state: ScrubbrState
 ) => any | Promise<any>;
 
-export type Options = {
+export type ScrubbrOptions = {
   logLevel?: LogLevel;
 };
 
 type ObjectNode = Record<string, any>;
 
 export default class Scrubbr {
-  options: Options;
+  options: ScrubbrOptions;
   private logger: Logger;
   private schema: JSONSchema7 = {};
   private typeSerializers = new Map<string, TypeSerializer[]>();
   private pathSerializers: PathSerializer[] = [];
 
+  /**
+   * Create new scrubbr serializer
+   * @param {string | JSONSchema7} schema - The TypeScript schema file or JSON object to use for serialization.
+   * @param {ScrubbrOptions} options - Scrubbr options.
+   */
   constructor(
     schema: string | JSONSchema7,
-    options: Options = {},
+    options: ScrubbrOptions = {},
     typeSerializers?: Map<string, TypeSerializer[]>,
     pathSerializers?: PathSerializer[]
   ) {
@@ -49,7 +54,7 @@ export default class Scrubbr {
   /**
    * Create new scrubber with the same options and custom serializers
    */
-  clone(options: Options): Scrubbr {
+  clone(options: ScrubbrOptions): Scrubbr {
     return new Scrubbr(
       this.schema,
       options,
@@ -95,7 +100,22 @@ export default class Scrubbr {
   }
 
   /**
-   * Add a function to serialize schema types
+   * Return the schema for a TypeScript type.
+   * @param {string} typeName - The name of the type to return the schema for.
+   * @return {JSONSchema7 | null} The JSON schema for the type, or null if it was not found.
+   */
+  getSchemaForType(typeName: string): JSONSchema7 | null {
+    const definitions = this.schema?.definitions || {};
+    if (typeof definitions[typeName] === 'undefined') {
+      return null;
+    }
+    return definitions[typeName] as JSONSchema7;
+  }
+
+  /**
+   * Add a function to serialize a schema type
+   * @param {string} typeName - The name of the type to register the serializer for.
+   * @param {function} serializer - The serializer function.
    */
   addTypeSerializer(typeName: string, serializer: TypeSerializer) {
     const serializerList = this.typeSerializers.get(typeName) || [];
@@ -104,24 +124,27 @@ export default class Scrubbr {
   }
 
   /**
-   * Add a function to serialize an object path.
+   * Add a custom serializer function that's called for each node in the object.
+   * @param {function} serializer - The serializer function.
    */
   addPathSerializer(serializer: PathSerializer) {
     this.pathSerializers.push(serializer);
   }
 
   /**
-   * Serialize data
+   * Serialize data based on a TypeScript type.
+   * @param {string} schemaType - The name of the typescript type to serialize the data with.
+   * @param {object} data - The data to serialize
+   * @param {any} context - Any data you want sent to the custom serializer functions.
    */
-  serialize(
-    data: Object,
+  async serialize<Type = any>(
     schemaType: string,
+    data: Object,
     context: any = null
-  ): Promise<any> {
+  ): Promise<Type> {
     this.logger.info(`Serializing data with TS type: '${schemaType}'`);
-    const definitions = this.schema?.definitions || {};
 
-    const schema = definitions[schemaType] as JSONSchema7;
+    const schema = this.getSchemaForType(schemaType);
     if (!schema) {
       throw new Error(`Could not find the type: ${schemaType}`);
     }
@@ -132,7 +155,7 @@ export default class Scrubbr {
     const state: ScrubbrState = new ScrubbrState(data, schema, context);
     state.rootSchemaType = schemaType;
     state.schemaType = schemaType;
-    return this.walkData(cloned, state);
+    return (await this.walkData(cloned, state)) as Type;
   }
 
   /**
@@ -267,14 +290,13 @@ export default class Scrubbr {
       schema?.anyOf ||
       schema?.oneOf ||
       []) as JSONSchema7[];
-    const definitions = this.schema.definitions || {};
 
     if (schema.$ref) {
       schemaList.push(schema);
     }
 
     // Get all types defined
-    let typeNames: string[] = [];
+    let foundTypes = new Map<string, JSONSchema7>();
     schemaList.forEach((schemaRef) => {
       const refPath = schemaRef.$ref;
       if (!refPath) {
@@ -282,18 +304,23 @@ export default class Scrubbr {
       }
       let typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
       typeName = decodeURI(typeName);
-      if (definitions[typeName]) {
-        typeNames.push(typeName);
+      const type = this.getSchemaForType(typeName);
+      if (type) {
+        foundTypes.set(typeName, type);
       } else {
         this.logger.warn(
-          `No type definitions found for '${typeNames}'`,
+          `No type definitions found for '${typeName}'`,
           state.nesting
         );
       }
     });
 
     // If there are multiple types, choose the one with the fewest properties (most restrictive)
-    let chosenType = typeNames[0] || null;
+    let chosenType: string | null = null;
+    const typeNames = Array.from(foundTypes.keys());
+    if (typeNames.length == 1) {
+      chosenType = typeNames[0];
+    }
     if (typeNames.length > 1) {
       this.logger.debug(
         `${typeNames.length} possible types (${typeNames}).`,
@@ -302,7 +329,7 @@ export default class Scrubbr {
 
       let minProps = Infinity;
       typeNames.forEach((name) => {
-        const typeSchema = definitions[name] as JSONSchema7;
+        const typeSchema = foundTypes.get(name);
         if (typeSchema?.properties) {
           const propNum = Object.keys(typeSchema.properties).length;
           if (propNum < minProps) {
@@ -347,13 +374,13 @@ export default class Scrubbr {
     if (primitiveTypes.includes(schemaType)) {
       state.schemaType = schemaType;
     } else {
-      const definitions = this.schema.definitions || {};
-      if (!definitions[schemaType]) {
+      const schemaDef = this.getSchemaForType(schemaType);
+      if (!schemaDef) {
         throw new Error(`Could not find a type definition for '${schemaType}'`);
       }
 
       state.schemaType = schemaType;
-      state.schemaDef = definitions[schemaType] as JSONSchema7;
+      state.schemaDef = schemaDef;
     }
 
     return state;
@@ -403,8 +430,7 @@ export default class Scrubbr {
       return dataNode;
     }
 
-    const definitions = this.schema.definitions || {};
-    if (!definitions[typeName]) {
+    if (!this.getSchemaForType(typeName)) {
       throw new Error(`No type named '${typeName}'.`);
     }
 
