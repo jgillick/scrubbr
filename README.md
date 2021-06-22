@@ -11,13 +11,26 @@ Serialize and sanitize JSON data using TypeScript.
 
 Serializing data sent from the webserver to the client shouldn't be hard. If you're already using TypeScript, you have everything you need. Scrubbr will use your TypeScript types to deeply transform and sanitize your data.
 
+## Table of contents
+
+- Install
+- Quick Start
+- Custom Serializer Functions
+  - Type Serializers
+  - Path Serializers
+- Cache the generated schema to disk
+- Schema Validation
+- Troubleshooting
+  - Look at the generated schema
+  - Enable debug logging
+
 ## Install
 
 ```shell
 npm i -S scrubbr
 ```
 
-## Quickstart
+## Quick Start
 
 1. Define a TypeScript file as your master schema:
 
@@ -78,7 +91,7 @@ function getUsers() {
 }
 ```
 
-## Custom Serializers
+## Custom Serializer Functions
 
 You can define additional functions for custom serializations.
 
@@ -109,7 +122,7 @@ const context = {
 const serialized = await scrubbr.serialize('PostList', data, context);
 ```
 
-### Path serializer
+### Path Serializers
 
 This serializer is called at each node of the data object, regardless of type. It's called a path serializer because you'll use the `state.path` value to determine which node you're serializing.
 

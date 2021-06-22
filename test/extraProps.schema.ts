@@ -1,10 +1,12 @@
-type User = {
-  id: number;
-  name: number;
+type ExtraPropsTest = {
+  value1: number;
+  value2: string;
 };
-type Post = {
-  user: User;
+
+type ExtraPropsChildTest = {
+  child: ExtraPropsTest;
 };
-type Invite = {
-  guests: User[];
+
+type ExtraPropsArrayTest = {
+  list: ExtraPropsTest[];
 };

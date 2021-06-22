@@ -1,4 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
+import { LogLevel, Logger } from './Logger';
+import { ScrubbrOptions } from './Scrubbr';
 
 export class ScrubbrState {
   path: string = '/';
@@ -9,33 +11,41 @@ export class ScrubbrState {
   context: any = {};
   originalData: any;
   nesting: number = 0;
+  seenTypes: string[] = [];
+  logger: Logger;
+  options: ScrubbrOptions;
 
-  constructor(data: any, schema: JSONSchema7, context: any, path: string = '') {
+  constructor(
+    data: any,
+    schema: JSONSchema7,
+    options: ScrubbrOptions,
+    context: any,
+    path: string = '',
+    nesting: number = 0
+  ) {
     this.context = context;
     this.data = data;
     this.schemaDef = schema;
     this.path = path;
-  }
+    this.options = options;
+    this.nesting = nesting;
 
-  /**
-   * Create a shallow copy of this state
-   */
-  clone() {
-    return { ...this };
+    this.logger = new Logger(options, nesting);
   }
 
   /**
    * Create a child state off of this one
    */
-  nodeState(path: string, schema: JSONSchema7): ScrubbrState {
+  createNodeState(path: string, schema: JSONSchema7): ScrubbrState {
     const state = new ScrubbrState(
       this.originalData,
       schema,
+      this.options,
       this.context,
-      path
+      path,
+      this.nesting + 1
     );
     state.rootSchemaType = this.rootSchemaType;
-    state.nesting = this.nesting + 1;
     return state;
   }
 }

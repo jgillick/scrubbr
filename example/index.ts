@@ -45,7 +45,9 @@ async function main() {
   try {
     // Load the typescript schema
     const filepath = path.resolve(`${__dirname}/schema.ts`);
-    const scrubbr = new Scrubbr(filepath, { logLevel: LogLevel.NONE });
+    const scrubbr = new Scrubbr(filepath, {
+      logLevel: LogLevel.INFO,
+    });
 
     // View the schema scrubbr created from the TypeScript file
     // printSchema(scrubbr);
@@ -64,7 +66,7 @@ async function main() {
     });
 
     // Serialize the data
-    const serialized = await scrubbr.serialize(data, 'PostList', context);
+    const serialized = await scrubbr.serialize('PostList', data, context);
     console.log('======================');
     console.log('Serialized Output:');
     console.log('======================');

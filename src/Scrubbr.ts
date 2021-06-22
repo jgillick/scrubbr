@@ -17,8 +17,38 @@ export type PathSerializer = (
 ) => any | Promise<any>;
 
 export type ScrubbrOptions = {
+  /**
+   * Set the logger level: LogLevel.NONE, LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG
+   * @default LogLevel.NONE
+   */
   logLevel?: LogLevel;
+
+  /**
+   * Add indents to better show where in the object it is.
+   * This is most useful when logLevel is set to LogLevel.DEBUG.
+   * @default false
+   */
   logNesting?: boolean | string;
+
+  /**
+   * A string prefix you want to precede all log messages
+   * @default ""
+   */
+  logPrefix?: string;
+
+  /**
+   * Throw an exception on errors that could effect the integrity of your data.
+   * Otherwise, the error will just be logged if the log level is set to LogLevel.ERROR or above.
+   * @default true
+   */
+  throwOnError?: boolean;
+};
+
+const defaultOptions = {
+  logLevel: LogLevel.NONE,
+  logNesting: false,
+  logPrefix: '',
+  throwOnError: true,
 };
 
 type ObjectNode = Record<string, any>;
@@ -44,11 +74,11 @@ export default class Scrubbr {
     schema: string | JSONSchemaDefinitions,
     options: ScrubbrOptions = {}
   ) {
-    this.options = options;
-    this.logger = new Logger(
-      options.logLevel || LogLevel.NONE,
-      options.logNesting || true
-    );
+    this.options = {
+      ...defaultOptions,
+      ...options,
+    };
+    this.logger = new Logger(options);
     this.loadSchema(schema);
   }
 
@@ -159,10 +189,16 @@ export default class Scrubbr {
     // Validate JSON and clone
     const cloned = JSON.parse(JSON.stringify(data));
 
-    const state: ScrubbrState = new ScrubbrState(data, schema, context);
+    const state: ScrubbrState = new ScrubbrState(
+      data,
+      schema,
+      this.options,
+      context
+    );
     state.rootSchemaType = schemaType;
     state.schemaType = schemaType;
-    return (await this.walkData(cloned, state)) as Type;
+    const serialized = (await this.walkData(cloned, state)) as Type;
+    return serialized;
   }
 
   /**
@@ -202,14 +238,13 @@ export default class Scrubbr {
       let propSchema = schemaProps[name] as JSONSchema7;
 
       const propPath = `${pathPrefix}${name}`;
-      this.logger.debug(`[PATH] ${propPath}`, state.nesting);
-      const propState = state.nodeState(propPath, propSchema);
+      state.logger.debug(`[PATH] ${propPath}`);
+      const propState = state.createNodeState(propPath, propSchema);
 
       // Property not defined in the schema, do not serialize property
       if (!propSchema) {
-        this.logger.debug(
-          `Property '${name}' not defined in ${state.schemaType}.`,
-          propState.nesting
+        state.logger.debug(
+          `Property '${name}' not defined in ${state.schemaType}.`
         );
         continue;
       }
@@ -240,12 +275,15 @@ export default class Scrubbr {
       const itemSchema = isTuple ? tupleSchema[i] : listSchema;
 
       const itemPath = `${state.path}[${i}]`;
-      this.logger.debug(`[PATH] ${itemPath}`, state.nesting);
-      const itemState = state.nodeState(itemPath, itemSchema as JSONSchema7);
+      state.logger.debug(`[PATH] ${itemPath}`);
+      const itemState = state.createNodeState(
+        itemPath,
+        itemSchema as JSONSchema7
+      );
 
       // Skip items past the tuple length
       if (isTuple && i >= tupleSchema.length) {
-        this.logger.debug(`Index ${i} not defined in tuple`, itemState.nesting);
+        state.logger.debug(`Index ${i} not defined in tuple`);
         break;
       }
 
@@ -266,6 +304,10 @@ export default class Scrubbr {
     // Get typescript type for the schema definition
     const schemaType = this.getTypeName(state.schemaDef, state);
     if (schemaType) {
+      const circularRef = this.isCircularReference(schemaType, state);
+      if (circularRef) {
+        return data;
+      }
       state = this.setStateSchemaDefinition(schemaType, state);
     }
 
@@ -282,10 +324,8 @@ export default class Scrubbr {
       !schemaDef.properties &&
       (schemaDef.allOf || schemaDef.anyOf || schemaDef.oneOf)
     ) {
-      this.logger.debug(
-        `'${state.schemaType}' appears to be an union type.`,
-        state.nesting
-      );
+      state.logger.debug(`'${state.schemaType}' appears to be an union type.`);
+
       return this.serializeNode(data, state);
     }
 
@@ -323,10 +363,7 @@ export default class Scrubbr {
       if (type) {
         foundTypes.set(typeName, type);
       } else {
-        this.logger.warn(
-          `No type definitions found for '${typeName}'`,
-          state.nesting
-        );
+        state.logger.warn(`No type definitions found for '${typeName}'`);
       }
     });
 
@@ -337,10 +374,7 @@ export default class Scrubbr {
       chosenType = typeNames[0];
     }
     if (typeNames.length > 1) {
-      this.logger.debug(
-        `${typeNames.length} possible types (${typeNames}).`,
-        state.nesting
-      );
+      state.logger.debug(`${typeNames.length} possible types (${typeNames}).`);
 
       let minProps = Infinity;
       typeNames.forEach((name) => {
@@ -355,12 +389,11 @@ export default class Scrubbr {
       });
 
       const others = typeNames.filter((n) => n != chosenType);
-      this.logger.warn(
-        `Guessing at type '${chosenType}' over ${others} because it has the fewest properties (you can explicitly override this selection with the 'useType()' function.).`,
-        state.nesting
+      state.logger.warn(
+        `Guessing at type '${chosenType}' over ${others} because it has the fewest properties (you can explicitly override this selection with the 'useType()' function.).`
       );
     } else {
-      this.logger.debug(`Type: '${chosenType}'`, state.nesting);
+      state.logger.debug(`Type: '${chosenType}'`);
     }
 
     return chosenType;
@@ -389,13 +422,19 @@ export default class Scrubbr {
       } else {
         const schemaDef = this.getSchemaForType(schemaType);
         if (!schemaDef) {
-          throw new Error(
-            `Could not find a type definition for '${schemaType}'`
+          this.error(
+            `Could not find a type definition for '${schemaType}'`,
+            state
           );
+          state.schemaType = null;
+          state.schemaDef = {};
+          return state;
         }
 
+        this.isCircularReference(schemaType, state);
         state.schemaType = schemaType;
         state.schemaDef = schemaDef;
+        state.seenTypes.push(schemaType);
       }
     }
 
@@ -413,19 +452,15 @@ export default class Scrubbr {
       return dataNode;
     }
 
-    this.logger.debug(
-      `Running ${this.pathSerializers.length} path serializers`,
-      state.nesting
+    state.logger.debug(
+      `Running ${this.pathSerializers.length} path serializers`
     );
 
     return this.pathSerializers.reduce((promise, serializerFn) => {
       return promise.then((data) => {
         const serialized = serializerFn(data, state);
         if (serialized instanceof UseType) {
-          this.logger.debug(
-            `Overriding type: '${serialized.typeName}'`,
-            state.nesting
-          );
+          state.logger.debug(`Overriding type: '${serialized.typeName}'`);
           state = this.setStateSchemaDefinition(serialized.typeName, state);
           return data;
         }
@@ -447,7 +482,8 @@ export default class Scrubbr {
     }
 
     if (!this.getSchemaForType(typeName)) {
-      throw new Error(`No type named '${typeName}'.`);
+      this.error(`No type named '${typeName}'.`, state);
+      return dataNode;
     }
 
     const serializerFns = this.typeSerializers.get(typeName) || [];
@@ -455,9 +491,8 @@ export default class Scrubbr {
       return dataNode;
     }
 
-    this.logger.debug(
-      `Running ${serializerFns.length} serializers for type '${typeName}'`,
-      state.nesting
+    state.logger.debug(
+      `Running ${serializerFns.length} serializers for type '${typeName}'`
     );
 
     for (let i = 0; i < serializerFns.length; i++) {
@@ -465,16 +500,43 @@ export default class Scrubbr {
 
       // Change type
       if (serialized instanceof UseType && serialized.typeName !== typeName) {
-        this.logger.debug(
-          `Overriding type: '${serialized.typeName}'`,
-          state.nesting
-        );
-        state = this.setStateSchemaDefinition(serialized.typeName, state);
-        return await this.runTypeSerializers(dataNode, state);
+        const { typeName } = serialized;
+        state.logger.debug(`Overriding type: '${typeName}'`);
+
+        // Check for circular reference
+        const circularRef = this.isCircularReference(typeName, state);
+        if (!circularRef) {
+          state = this.setStateSchemaDefinition(typeName, state);
+          return await this.runTypeSerializers(dataNode, state);
+        }
       }
       dataNode = serialized;
     }
 
     return dataNode;
+  }
+
+  /**
+   * Check if this type has already been processed at this level.
+   */
+  isCircularReference(typeName: string, state: ScrubbrState): boolean {
+    if (state.seenTypes.includes(typeName)) {
+      this.error(
+        `Scrubbr detected a circular reference with type ${typeName} at object path: ${state.path}`,
+        state
+      );
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Handle an error by either throwing an exception or logging it.
+   */
+  error(message: string, state: ScrubbrState) {
+    if (this.options.throwOnError) {
+      throw new Error(message);
+    }
+    state.logger.error(message);
   }
 }

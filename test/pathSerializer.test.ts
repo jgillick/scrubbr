@@ -26,7 +26,7 @@ describe('Path serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('PathTest', data);
+    const serialized = await scrubbr.serialize('PathSerializerTest', data);
 
     expect(serializerFn).toBeCalled();
     expect(paths).toEqual([
@@ -61,7 +61,7 @@ describe('Path serializer', () => {
       return data;
     });
 
-    await scrubbr.serialize('PathTest', data, context);
+    await scrubbr.serialize('PathSerializerTest', data, context);
   });
 
   test('modify node', async () => {
@@ -72,7 +72,7 @@ describe('Path serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('PathTest', data);
+    const serialized = await scrubbr.serialize('PathSerializerTest', data);
     expect(serialized.child.node).toBe('Changed!');
   });
 
@@ -86,19 +86,19 @@ describe('Path serializer', () => {
       return data;
     });
 
-    await scrubbr.serialize('PathTest', data);
+    await scrubbr.serialize('PathSerializerTest', data);
     expect(paths).toEqual(['', 'child', 'child.node', 'children']);
   });
 
   test('override node type', async () => {
     serializerFn.mockImplementation((data, state) => {
       if (state.path == 'child') {
-        return useType('ChildExtendedType');
+        return useType('PathSerializerExtended');
       }
       return data;
     });
 
-    const serialized = await scrubbr.serialize('PathTest', data);
+    const serialized = await scrubbr.serialize('PathSerializerTest', data);
     expect(serialized.child.extra).toBe('bar');
   });
 });

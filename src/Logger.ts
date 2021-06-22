@@ -1,3 +1,5 @@
+import { ScrubbrOptions } from './Scrubbr';
+
 export enum LogLevel {
   DEBUG = 4,
   INFO = 3,
@@ -8,49 +10,56 @@ export enum LogLevel {
 
 export class Logger {
   logLevel: LogLevel;
+  prefix: string;
   nestingString: string | boolean = false;
+  nestLevel: number = 0;
 
-  constructor(logLevel: LogLevel, nesting: boolean | string = false) {
-    this.logLevel = logLevel;
-    if (nesting === true) {
+  constructor(options: ScrubbrOptions, nestLevel: number = 0) {
+    this.logLevel = options.logLevel || LogLevel.NONE;
+    this.prefix = options.logPrefix || '';
+    this.nestLevel = nestLevel;
+
+    const { logNesting } = options;
+    if (logNesting === true) {
       this.nestingString = '  ';
-    } else if (typeof nesting == 'string') {
-      this.nestingString = nesting;
+    } else if (typeof logNesting == 'string') {
+      this.nestingString = logNesting;
     }
   }
 
-  private getNesting(num: number): string {
+  private getPrefix(): string {
     if (!this.nestingString) {
-      return '';
+      return this.prefix;
     }
-    return Array(num).fill(this.nestingString).join('');
+    const indent = Array(this.nestLevel).fill(this.nestingString).join('');
+    return this.prefix + indent;
   }
 
-  info(message: string, nestingLevel: number = 0) {
+  info(message: string) {
     if (this.logLevel < LogLevel.INFO) {
       return;
     }
-    console.log(`${this.getNesting(nestingLevel)}${message}`);
+    console.log(`${this.getPrefix()}${message}`);
   }
 
-  error(message: string, nestingLevel: number = 0) {
+  error(message: string) {
     if (this.logLevel < LogLevel.ERROR) {
       return;
     }
-    console.error(`${this.getNesting(nestingLevel)}${message}`);
+    console.error(`${this.getPrefix()}${message}`);
   }
 
-  warn(message: string, nestingLevel: number = 0) {
+  warn(message: string) {
     if (this.logLevel < LogLevel.WARN) {
       return;
     }
-    console.warn(`${this.getNesting(nestingLevel)}${message}`);
+    console.warn(`${this.getPrefix()}${message}`);
   }
 
-  debug(message: string, nestingLevel: number = 0) {
+  debug(message: string) {
     if (this.logLevel < LogLevel.DEBUG) {
       return;
     }
-    console.debug(`${this.getNesting(nestingLevel)}${message}`);
+    console.debug(`${this.getPrefix()}${message}`);
   }
 }

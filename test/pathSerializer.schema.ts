@@ -1,13 +1,13 @@
-type PathTest = {
-  child: ChildType;
-  children: ChildType[];
+type PathSerializerTest = {
+  child: PathSerializerChildType;
+  children: PathSerializerChildType[];
 };
 
-type ChildType = {
+type PathSerializerChildType = {
   node: string;
 };
 
-type ChildExtendedType = {
+type PathSerializerExtended = {
   node: string;
   extra: string;
 };

@@ -6,44 +6,55 @@ const scrubbr = new Scrubbr(`${__dirname}/extraProps.schema.ts`);
 describe('do not serialize properties not in schema', () => {
   test('root object', async () => {
     const data = {
-      id: 1,
-      name: 'foo',
-      email: 'foo@boo.com',
+      value1: 1,
+      value2: 'foo',
+      extraValue: 'foo@boo.com',
     };
-    const serialized = await scrubbr.serialize('User', data);
-    expect(serialized).toEqual(expect.objectContaining({ id: 1, name: 'foo' }));
-    expect(serialized.email).toBeUndefined();
+    const serialized = await scrubbr.serialize('ExtraPropsTest', data);
+    expect(serialized).toEqual(
+      expect.objectContaining({ value1: 1, value2: 'foo' })
+    );
+    expect(serialized.extraValue).toBeUndefined();
   });
 
   test('child object', async () => {
     const data = {
-      user: {
-        id: 1,
-        name: 'foo',
-        email: 'foo@boo.com',
+      child: {
+        value1: 1,
+        value2: 'foo',
+        extraValue: 'foo@boo.com',
       },
     };
-    const serialized = await scrubbr.serialize('Post', data);
-    expect(serialized.user).toEqual(
-      expect.objectContaining({ id: 1, name: 'foo' })
+    const serialized = await scrubbr.serialize('ExtraPropsChildTest', data);
+    expect(serialized.child).toEqual(
+      expect.objectContaining({ value1: 1, value2: 'foo' })
     );
-    expect(serialized.user.email).toBeUndefined();
+    expect(serialized.child.extraValue).toBeUndefined();
   });
 
   test('as array item', async () => {
     const data = {
-      guests: [
+      list: [
         {
-          id: 1,
-          name: 'foo',
-          email: 'foo@boo.com',
+          value1: 1,
+          value2: 'foo',
+          extraValue: 'foo@boo.com',
+        },
+        {
+          value1: 2,
+          value2: 'bar',
+          extraValue: 'hello@world.com',
         },
       ],
     };
-    const serialized = await scrubbr.serialize('Invite', data);
-    expect(serialized.guests[0]).toEqual(
-      expect.objectContaining({ id: 1, name: 'foo' })
+    const serialized = await scrubbr.serialize('ExtraPropsArrayTest', data);
+    expect(serialized.list[0]).toEqual(
+      expect.objectContaining({ value1: 1, value2: 'foo' })
     );
-    expect(serialized.guests[0].email).toBeUndefined();
+    expect(serialized.list[1]).toEqual(
+      expect.objectContaining({ value1: 2, value2: 'bar' })
+    );
+    expect(serialized.list[0].extraValue).toBeUndefined();
+    expect(serialized.list[1].extraValue).toBeUndefined();
   });
 });
