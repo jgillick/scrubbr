@@ -18,6 +18,13 @@ export class ScrubbrState {
   }
 
   /**
+   * Create a shallow copy of this state
+   */
+  clone() {
+    return { ...this };
+  }
+
+  /**
    * Create a child state off of this one
    */
   nodeState(path: string, schema: JSONSchema7): ScrubbrState {

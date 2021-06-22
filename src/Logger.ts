@@ -8,40 +8,49 @@ export enum LogLevel {
 
 export class Logger {
   logLevel: LogLevel;
+  nestingString: string | boolean = false;
 
-  constructor(logLevel: LogLevel) {
+  constructor(logLevel: LogLevel, nesting: boolean | string) {
     this.logLevel = logLevel;
+    if (nesting === true) {
+      this.nestingString = '  ';
+    } else if (typeof nesting == 'string') {
+      this.nestingString = nesting;
+    }
   }
 
-  private getIndent(num: number): string {
-    return Array(num).fill('  ').join('');
+  private getNesting(num: number): string {
+    if (!this.nestingString) {
+      return '';
+    }
+    return Array(num).fill(this.nestingString).join('');
   }
 
-  info(message: string, indent: number = 0) {
+  info(message: string, nestingLevel: number = 0) {
     if (this.logLevel < LogLevel.INFO) {
       return;
     }
-    console.log(`${this.getIndent(indent)}${message}`);
+    console.log(`${this.getNesting(nestingLevel)}${message}`);
   }
 
-  error(message: string, indent: number = 0) {
+  error(message: string, nestingLevel: number = 0) {
     if (this.logLevel < LogLevel.ERROR) {
       return;
     }
-    console.error(`${this.getIndent(indent)}${message}`);
+    console.error(`${this.getNesting(nestingLevel)}${message}`);
   }
 
-  warn(message: string, indent: number = 0) {
+  warn(message: string, nestingLevel: number = 0) {
     if (this.logLevel < LogLevel.WARN) {
       return;
     }
-    console.warn(`${this.getIndent(indent)}${message}`);
+    console.warn(`${this.getNesting(nestingLevel)}${message}`);
   }
 
-  debug(message: string, indent: number = 0) {
+  debug(message: string, nestingLevel: number = 0) {
     if (this.logLevel < LogLevel.DEBUG) {
       return;
     }
-    console.debug(`${this.getIndent(indent)}${message}`);
+    console.debug(`${this.getNesting(nestingLevel)}${message}`);
   }
 }

@@ -17,6 +17,7 @@ export type PathSerializer = (
 
 export type ScrubbrOptions = {
   logLevel?: LogLevel;
+  logNesting?: boolean | string;
 };
 
 type ObjectNode = Record<string, any>;
@@ -33,34 +34,31 @@ export default class Scrubbr {
    * @param {string | JSONSchema7} schema - The TypeScript schema file or JSON object to use for serialization.
    * @param {ScrubbrOptions} options - Scrubbr options.
    */
-  constructor(
-    schema: string | JSONSchema7,
-    options: ScrubbrOptions = {},
-    typeSerializers?: Map<string, TypeSerializer[]>,
-    pathSerializers?: PathSerializer[]
-  ) {
+  constructor(schema: string | JSONSchema7, options: ScrubbrOptions = {}) {
     this.options = options;
-    this.logger = new Logger(options.logLevel || LogLevel.NONE);
+    this.logger = new Logger(
+      options.logLevel || LogLevel.NONE,
+      options.logNesting || true
+    );
     this.loadSchema(schema);
-
-    if (typeSerializers) {
-      this.typeSerializers = new Map(typeSerializers);
-    }
-    if (pathSerializers) {
-      this.pathSerializers = pathSerializers;
-    }
   }
 
   /**
    * Create new scrubber with the same options and custom serializers
    */
   clone(options: ScrubbrOptions): Scrubbr {
-    return new Scrubbr(
-      this.schema,
-      options,
-      this.typeSerializers,
-      this.pathSerializers
-    );
+    const cloned = new Scrubbr(this.schema, options);
+
+    this.pathSerializers.forEach((serializerFn) => {
+      cloned.addPathSerializer(serializerFn);
+    });
+    this.typeSerializers.forEach((serializers, typeName) => {
+      serializers.forEach((serializerFn) => {
+        cloned.addTypeSerializer(typeName, serializerFn);
+      });
+    });
+
+    return cloned;
   }
 
   /**
@@ -159,7 +157,9 @@ export default class Scrubbr {
   }
 
   /**
-   * Serialize a single node, recursively
+   * Traverse into a node of data on an object to serialize.
+   * @param {object} node: The data object to start from
+   * @param {ScrubbrState} state - The serializing state.
    */
   private async walkData(node: Object, state: ScrubbrState): Promise<Object> {
     const serializedNode = await this.serializeNode(node, state);
@@ -175,7 +175,9 @@ export default class Scrubbr {
   }
 
   /**
-   * Serialize an object in the data structure
+   * Serialize all the properties of an object.
+   * @param {object} node - The object to serialize
+   * @param {ScrubbrState} state - The serializing state.
    */
   private async walkObjectNode(
     node: ObjectNode,
@@ -191,8 +193,7 @@ export default class Scrubbr {
       let propSchema = schemaProps[name] as JSONSchema7;
 
       const propPath = `${pathPrefix}${name}`;
-      this.logger.debug(propPath, state.nesting);
-
+      this.logger.debug(`[PATH] ${propPath}`, state.nesting);
       const propState = state.nodeState(propPath, propSchema);
 
       // Property not defined in the schema, do not serialize property
@@ -210,12 +211,11 @@ export default class Scrubbr {
   }
 
   /**
-   * Serialize an array node
+   * Serialize all the items of an array.
+   * @param {any} node[] - The array to serialize
+   * @param {ScrubbrState} state - The serializing state.
    */
-  private async walkArrayNode(
-    node: Object[],
-    state: ScrubbrState
-  ): Promise<Object> {
+  private async walkArrayNode(node: any[], state: ScrubbrState): Promise<any> {
     const schema = state.schemaDef;
     const listSchema = schema.items as JSONSchema7 | JSONSchema7[];
 
@@ -231,7 +231,7 @@ export default class Scrubbr {
       const itemSchema = isTuple ? tupleSchema[i] : listSchema;
 
       const itemPath = `${state.path}[${i}]`;
-      this.logger.debug(itemPath, state.nesting);
+      this.logger.debug(`[PATH] ${itemPath}`, state.nesting);
       const itemState = state.nodeState(itemPath, itemSchema as JSONSchema7);
 
       // Skip items past the tuple length
@@ -247,23 +247,29 @@ export default class Scrubbr {
   }
 
   /**
-   * Serialize a node of data
+   * Serialize a single piece of data.
+   * @param {any} data - The data to serialize
+   * @param {ScrubbrState} state - The serializing state.
    */
-  private async serializeNode(
-    data: Object,
-    state: ScrubbrState
-  ): Promise<Object> {
-    const schemaType = this.getNodeType(state);
+  private async serializeNode(data: any, state: ScrubbrState): Promise<Object> {
+    const originalDef = state.schemaDef;
+
+    // Get typescript type for the schema definition
+    const schemaType = this.getTypeName(state.schemaDef, state);
     if (schemaType) {
-      this.setStateSchema(schemaType, state);
+      state = this.setStateSchemaDefinition(schemaType, state);
     }
+
+    // Run serializers
     data = await this.runPathSerializers(data, state);
     data = await this.runTypeSerializers(data, state);
 
-    // If the type is an alias to a union, walk one level deeper
+    // If the type definition is an alias to a union, walk one level deeper
     const { schemaDef } = state;
     if (
       schemaDef &&
+      schemaType &&
+      originalDef !== schemaDef &&
       !schemaDef.properties &&
       (schemaDef.allOf || schemaDef.anyOf || schemaDef.oneOf)
     ) {
@@ -280,8 +286,7 @@ export default class Scrubbr {
   /**
    * Return the Typescript type(s), if any, from the schema.
    */
-  private getNodeType(state: ScrubbrState): string | null {
-    const schema = state.schemaDef;
+  private getTypeName(schema: JSONSchema7, state: ScrubbrState): string | null {
     if (!schema) {
       return null;
     }
@@ -295,13 +300,14 @@ export default class Scrubbr {
       schemaList.push(schema);
     }
 
-    // Get all types defined
+    // Get all the types we have definitions for
     let foundTypes = new Map<string, JSONSchema7>();
     schemaList.forEach((schemaRef) => {
       const refPath = schemaRef.$ref;
       if (!refPath) {
         return;
       }
+
       let typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
       typeName = decodeURI(typeName);
       const type = this.getSchemaForType(typeName);
@@ -348,18 +354,14 @@ export default class Scrubbr {
       this.logger.debug(`Type: '${chosenType}'`, state.nesting);
     }
 
-    if (chosenType) {
-      this.setStateSchema(chosenType, state);
-    }
-
     return chosenType;
   }
 
   /**
    * Set the schema definition in the state
    */
-  private setStateSchema(
-    schemaType: string,
+  private setStateSchemaDefinition(
+    schemaType: string | null,
     state: ScrubbrState
   ): ScrubbrState {
     const primitiveTypes = [
@@ -371,16 +373,21 @@ export default class Scrubbr {
       'null',
     ];
 
-    if (primitiveTypes.includes(schemaType)) {
-      state.schemaType = schemaType;
-    } else {
-      const schemaDef = this.getSchemaForType(schemaType);
-      if (!schemaDef) {
-        throw new Error(`Could not find a type definition for '${schemaType}'`);
-      }
+    if (schemaType) {
+      if (primitiveTypes.includes(schemaType)) {
+        state.schemaType = schemaType;
+        state.schemaDef = {};
+      } else {
+        const schemaDef = this.getSchemaForType(schemaType);
+        if (!schemaDef) {
+          throw new Error(
+            `Could not find a type definition for '${schemaType}'`
+          );
+        }
 
-      state.schemaType = schemaType;
-      state.schemaDef = schemaDef;
+        state.schemaType = schemaType;
+        state.schemaDef = schemaDef;
+      }
     }
 
     return state;
@@ -410,7 +417,7 @@ export default class Scrubbr {
             `Overriding type: '${serialized.typeName}'`,
             state.nesting
           );
-          this.setStateSchema(serialized.typeName, state);
+          state = this.setStateSchemaDefinition(serialized.typeName, state);
           return data;
         }
         return serialized;
@@ -453,7 +460,7 @@ export default class Scrubbr {
           `Overriding type: '${serialized.typeName}'`,
           state.nesting
         );
-        this.setStateSchema(serialized.typeName, state);
+        state = this.setStateSchemaDefinition(serialized.typeName, state);
         return await this.runTypeSerializers(dataNode, state);
       }
       dataNode = serialized;
