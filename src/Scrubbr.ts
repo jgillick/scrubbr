@@ -10,6 +10,7 @@ export type TypeSerializer = (
   data: any,
   state: ScrubbrState
 ) => any | Promise<any>;
+
 export type PathSerializer = (
   data: any,
   state: ScrubbrState
@@ -21,6 +22,11 @@ export type ScrubbrOptions = {
 };
 
 type ObjectNode = Record<string, any>;
+export type JSONSchemaDefinitions = {
+  definitions: {
+    [k: string]: JSONSchema7;
+  };
+};
 
 export default class Scrubbr {
   options: ScrubbrOptions;
@@ -34,7 +40,10 @@ export default class Scrubbr {
    * @param {string | JSONSchema7} schema - The TypeScript schema file or JSON object to use for serialization.
    * @param {ScrubbrOptions} options - Scrubbr options.
    */
-  constructor(schema: string | JSONSchema7, options: ScrubbrOptions = {}) {
+  constructor(
+    schema: string | JSONSchemaDefinitions,
+    options: ScrubbrOptions = {}
+  ) {
     this.options = options;
     this.logger = new Logger(
       options.logLevel || LogLevel.NONE,
@@ -47,7 +56,7 @@ export default class Scrubbr {
    * Create new scrubber with the same options and custom serializers
    */
   clone(options: ScrubbrOptions): Scrubbr {
-    const cloned = new Scrubbr(this.schema, options);
+    const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, options);
 
     this.pathSerializers.forEach((serializerFn) => {
       cloned.addPathSerializer(serializerFn);
@@ -64,7 +73,7 @@ export default class Scrubbr {
   /**
    * Replace the schema with a new one
    */
-  loadSchema(schema: string | JSONSchema7) {
+  loadSchema(schema: string | JSONSchemaDefinitions) {
     // Load typescript file
     if (typeof schema == 'string') {
       this.logger.info(`Loading typescript file: ${schema}`);
@@ -80,11 +89,11 @@ export default class Scrubbr {
           path: schema,
           expose: 'all',
         })
-        .createSchema();
+        .createSchema() as JSONSchemaDefinitions;
     }
 
     // Set JSON Schema
-    this.schema = schema;
+    this.schema = schema as JSONSchema7;
     if (!this.schema.definitions) {
       throw new Error('No type definitions were found in your schema.');
     }
@@ -221,7 +230,7 @@ export default class Scrubbr {
 
     let tupleSchema: JSONSchema7[] = [];
     const isTuple = Array.isArray(schema.items);
-    if (Array.isArray(schema.items)) {
+    if (isTuple) {
       tupleSchema = schema.items as JSONSchema7[];
     }
 

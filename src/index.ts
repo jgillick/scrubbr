@@ -1,7 +1,13 @@
-import Scrubbr from "./Scrubbr";
+import Scrubbr from './Scrubbr';
 
-export { ScrubbrState } from "./ScrubbrState";
-export { LogLevel } from "./Logger";
-export { useType } from "./helpers";
+export {
+  ScrubbrOptions,
+  TypeSerializer,
+  PathSerializer,
+  JSONSchemaDefinitions,
+} from './Scrubbr';
+export { ScrubbrState } from './ScrubbrState';
+export { LogLevel } from './Logger';
+export { useType } from './helpers';
 
 export default Scrubbr;

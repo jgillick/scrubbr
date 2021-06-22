@@ -10,7 +10,7 @@ export class Logger {
   logLevel: LogLevel;
   nestingString: string | boolean = false;
 
-  constructor(logLevel: LogLevel, nesting: boolean | string) {
+  constructor(logLevel: LogLevel, nesting: boolean | string = false) {
     this.logLevel = logLevel;
     if (nesting === true) {
       this.nestingString = '  ';

@@ -79,11 +79,11 @@ function getUsers() {
 }
 ```
 
-# Custom Serializers
+## Custom Serializers
 
 You can define custom functions to affect how the data is serialized.
 
-## Type Serializer
+### Type Serializer
 
 This function is called every time a matching TypeScript type is encountered.
 
@@ -110,7 +110,7 @@ const context = {
 const serialized = await scrubbr.serialize('PostList', data, context);
 ```
 
-## Path serializer
+### Path serializer
 
 This serializer is called at each node of the data object regardless of type. It's called a path serializer because you'll use the `state.path` value to determine which node you're serializing.
 
@@ -136,7 +136,7 @@ const context = {
 const serialized = await scrubbr.serialize('PostList', data, context);
 ```
 
-# Try it yourself
+## Try it yourself
 
 It's easy to try it yourself with the included example in `example/index.ts`. Just clone this repo, install the dependencies (`npm install`) and then run the example app with:
 
@@ -144,9 +144,76 @@ It's easy to try it yourself with the included example in `example/index.ts`. Ju
 npm run example
 ```
 
-# Advanced Topics
+## Troubleshooting
 
-## Validation
+### Look at the generated schema
+
+If scrubbr is not returning the data you're expecting, the first place to look is at the internal schema definitions:
+
+```typescript
+console.log(scrubbr.getSchema());
+```
+
+_This is a [JSON schema](https://json-schema.org/understanding-json-schema/) that is created from your TypeScript file._
+
+Next look at the schema definition for the TypeScript type you're trying to serialize to.
+
+```typescript
+// return scrubbr.serialize('UserList', data);
+console.log(scrubbr.getSchemaForType('UserList'));
+```
+
+Verify that this returns a JSON Schema object and that it contains the properties you want serialized.
+
+### Debugging output
+
+Enable debug logging:
+
+```typescript
+import Scrubbr, { LogLevel } from 'scrubbr';
+
+const scrubbr = new Scrubbr('./schema.ts', { logLevel: LogLevel.DEBUG });
+```
+
+Scrubbr can also nest the logs to make it easier to read:
+
+```typescript
+const scrubbr = new Scrubbr('./schema.ts', {
+  logLevel: LogLevel.DEBUG,
+  logNesting: true,
+});
+```
+
+And you can even enter the indent string to use for each level of nesting:
+
+```typescript
+const scrubbr = new Scrubbr('./schema.ts', {
+  logLevel: LogLevel.DEBUG,
+  logNesting: '~~>',
+});
+```
+
+## Caching the generated schema to disk
+
+To optimize startup time, you can save the schema object scrubbr uses internally to disk during your build step and then load it directly when you initialize scrubbr. Internally, scrubbr uses the [ts-json-schema-generator](https://www.npmjs.com/package/ts-json-schema-generator) library to convert TypeScript to a JSON schema file. NOTE: you cannot load any JSON schema file into scrubbr, it needs to follow the conventions of ts-json-schema-generator.
+
+**Build**
+
+```shell
+npx ts-json-schema-generator -f ./tsconfig.json -p ./schema.ts -o ./dist/schema.json
+```
+
+**Runtime code**
+
+```typescript
+import Scrubbr, { JSONSchemaDefinitions } from 'scrubbr';
+
+// Set resolveJsonModule to true in your tsconfig, otherwise use require()
+import * as schema from './schema.json';
+const scrubbr = new Scrubbr(schema as JSONSchemaDefinitions);
+```
+
+## Schema Validation
 
 For the sake of performance and simplicity, scrubber does not perform a schema validation step (it outputs data, not validates). However, under the hood scrubbr converts TypeScript to JSONSchema (via the great [ts-json-schema-generator](https://www.npmjs.com/package/ts-json-schema-generator) package). So you can easily use [ajv](https://www.npmjs.com/package/ajv) to validate the serialized object.
 
