@@ -52,11 +52,13 @@ const defaultOptions = {
 };
 
 type ObjectNode = Record<string, any>;
-export type JSONSchemaDefinitions = {
-  definitions: {
-    [k: string]: JSONSchema7;
-  };
-};
+export type JSONSchemaDefinitions =
+  | JSONSchema7
+  | {
+      definitions: {
+        [k: string]: JSONSchema7;
+      };
+    };
 
 export default class Scrubbr {
   options: ScrubbrOptions;

@@ -16,8 +16,15 @@ export class Logger {
 
   constructor(options: ScrubbrOptions, nestLevel: number = 0) {
     this.logLevel = options.logLevel || LogLevel.NONE;
-    this.prefix = options.logPrefix || '';
     this.nestLevel = nestLevel;
+
+    this.prefix = '';
+    if (options.logPrefix) {
+      this.prefix = options.logPrefix;
+      if (!this.prefix.endsWith(' ')) {
+        this.prefix += ' ';
+      }
+    }
 
     const { logNesting } = options;
     if (logNesting === true) {
