@@ -7,11 +7,9 @@ If scrubbr is not returning the data you're expecting, the first place to look i
 ```typescript
 console.log(scrubbr.getSchema());
 ```
+This is the [JSON schema](https://json-schema.org/understanding-json-schema/) that was created from your TypeScript file.
 
-!!! NOTE
-    This is the [JSON schema](https://json-schema.org/understanding-json-schema/) that was created from your TypeScript file.
-
-Next look at the schema definition for the TypeScript type you're trying to serialize to.
+Next look at the schema definition for the type you're trying to serialize to.
 
 ```typescript
 console.log(scrubbr.getSchemaFor('UserList'));

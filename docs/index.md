@@ -80,7 +80,7 @@ async function api() {
 }
 ```
 
-## That's it
+## Next up
 
 Follow along for more advanced features.
 

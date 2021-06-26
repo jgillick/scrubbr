@@ -18,6 +18,9 @@ markdown_extensions:
       permalink: True
 
 # Themes
+
 # theme: flatly
 theme: cinder
 # theme: slate
+extra_css:
+    - css/overrides.css

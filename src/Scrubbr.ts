@@ -49,8 +49,11 @@ export default class Scrubbr {
   /**
    * Create new scrubber with the same options and custom serializers
    */
-  clone(options: ScrubbrOptions): Scrubbr {
-    const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, options);
+  clone(options?: ScrubbrOptions): Scrubbr {
+    if (!options) {
+      options = this.options;
+    }
+    const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, option);
 
     this.genericSerializers.forEach((serializerFn) => {
       cloned.addGenericSerializer(serializerFn);
@@ -115,13 +118,16 @@ export default class Scrubbr {
 
   /**
    * Add a function to serialize a schema type
-   * @param {string} typeName - The name of the type to register the serializer for.
+   * @param {string | string[]} typeName - One or more type names to register the serializer for.
    * @param {function} serializer - The serializer function.
    */
-  addTypeSerializer(typeName: string, serializer: TypeSerializer) {
-    const serializerList = this.typeSerializers.get(typeName) || [];
-    serializerList.push(serializer);
-    this.typeSerializers.set(typeName, serializerList);
+  addTypeSerializer(typeName: string | string[], serializer: TypeSerializer) {
+    const typeNames = (Array.isArray(typeName)) ? typeName : [typeName];
+    typeNames.forEach((name) => {
+      const serializerList = this.typeSerializers.get(name) || [];
+      serializerList.push(serializer);
+      this.typeSerializers.set(name, serializerList);
+    });
   }
 
   /**
@@ -459,6 +465,10 @@ export default class Scrubbr {
         const serialized = serializerFn(data, state);
         if (serialized instanceof UseType) {
           state.logger.debug(`Overriding type: '${serialized.typeName}'`);
+          if (serialized.typeName === state.schemaType) {
+            state.logger.warn(`Trying to override type with the same type ('${serialized.typeName}') at object path: ${state.path}`);
+          }
+
           state = this.setStateSchemaDefinition(serialized.typeName, state);
           return data;
         }
@@ -501,11 +511,15 @@ export default class Scrubbr {
         const { typeName } = serialized;
         state.logger.debug(`Overriding type: '${typeName}'`);
 
-        // Check for circular reference
-        const circularRef = this.isCircularReference(typeName, state);
-        if (!circularRef) {
-          state = this.setStateSchemaDefinition(typeName, state);
-          return await this.runTypeSerializers(dataNode, state);
+        if (serialized.typeName === state.schemaType) {
+          state.logger.warn(`Trying to override type with the same type ('${serialized.typeName}') at object path: ${state.path}`);
+        } else {
+          // Check for circular reference
+          const circularRef = this.isCircularReference(typeName, state);
+          if (!circularRef) {
+            state = this.setStateSchemaDefinition(typeName, state);
+            return await this.runTypeSerializers(dataNode, state);
+          }
         }
       }
       dataNode = serialized;
