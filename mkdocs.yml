@@ -1,0 +1,23 @@
+# Site
+site_name: Scrubbr
+site_description: Serialize JSON data using TypeScript.
+site_author: Jeremy Gillick
+site_url: https://jgillick.github.io/scrubbr/
+
+# Repo
+repo_name: GitHub
+repo_url: https://github.com/jgillick/scrubbr
+
+# Dev
+# dev_addr: localhost:8000
+
+# markdown
+markdown_extensions:
+  - admonition: {}
+  - toc:
+      permalink: True
+
+# Themes
+# theme: flatly
+theme: cinder
+# theme: slate

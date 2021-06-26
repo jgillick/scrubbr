@@ -1,24 +1,22 @@
-# Quick Start
+# Scrubbr
 
-Serializing data in node shouldn't be hard and you shouldn't have to worry about accidentally leaking private information through your APIs. If you're using TypeScript, you already have everythign you need to effortlessly serialize and transform your data.
+Serializing data in node shouldn't be hard. You shouldn't have to worry about accidentally leaking private information through your APIs. If you're using TypeScript, you already have everythign you need to effortlessly serialize and transform your data.
 
-![](.gitbook/assets/example.png)
+![](images/example.png)
 
 Scrubbr transforms your TypeScript into a JSON schema and uses that to format your data.
 
 ## Install
 
-```text
+```shell
 npm i -S scrubbr
 ```
 
 ## Quick Start
 
-The simplest use is to filter out sensitive data.
+The simplest example is to filter out sensitive data.
 
-### Example Data
-
-In this example data we want to prevent the email and password from being shared.
+In this example we want to filter the email and password out of this sample data:
 
 ```javascript
 {
@@ -33,9 +31,9 @@ In this example data we want to prevent the email and password from being shared
 };
 ```
 
-### Define your TypeScript schema
+### 1. Define your TypeScript schema
 
-This file should only contain the properties that you want in your data. The primitive data types aren't critical, as Scrubbr will not do any type validation or coertion for you \(see more about custom serializers, later\).
+First define a TypeScript schema file that only contains the properties you want in our output.
 
 ```typescript
 // schema.ts
@@ -50,12 +48,14 @@ type User = {
 };
 ```
 
-### Serialize with Scrubbr
+### 2. Serialize with Scrubbr
+
+Now initialize Scrubbr with a path to the schema file and serialize the data.
 
 ```typescript
 import Scrubbr from 'scrubbr';
 
-// PERFORMANCE NOTE: this is a synchronous call! 
+// PERFORMANCE NOTE: this is a synchronous call!
 // Load early and cache to a shared variable.
 const scrubbr = new Scrubbr('./schema.ts');
 
@@ -67,7 +67,7 @@ async function api() {
 }
 ```
 
-### Ouput
+### 3. Ouput
 
 ```typescript
 {
@@ -84,3 +84,4 @@ async function api() {
 
 Follow along for more advanced features.
 
+Learn about [Custom Serializers](serializers.md) next.
