@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/jgillick/scrubbr/actions/workflows/test.yml/badge.svg)](https://github.com/jgillick/scrubbr/actions)
 [![npm version](https://img.shields.io/npm/v/scrubbr)](https://badge.fury.io/js/scrubbr)
-[![downloads](https://img.shields.io/npm/dm/Scrubbr)](https://www.npmjs.com/package/scrubbr)
+[![downloads](https://img.shields.io/npm/dm/scrubbr)](https://www.npmjs.com/package/scrubbr)
 
 Serialize JSON data using TypeScript.
 
