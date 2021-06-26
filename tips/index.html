@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Serialize JSON data using TypeScript.">
+    <meta name="author" content="Jeremy Gillick">
+    <link rel="canonical" href="https://jgillick.github.io/scrubbr/tips/">
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    
+    <title>Tips & Tricks - Scrubbr</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="..">Scrubbr</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Scrubbr</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../serializers/">Custom Serializers</a>
+                    </li>
+                
+                
+                
+                    <li class="active">
+                        <a href="./">Tips & Tricks</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../troubleshooting/">Troubleshooting</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../serializers/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../troubleshooting/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/jgillick/scrubbr/edit/master/docs/tips.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#tips-tricks">Tips &amp; Tricks</a></li>
+            <li class="second-level"><a href="#typescript-typing">TypeScript Typing</a></li>
+                
+            <li class="second-level"><a href="#improving-startup-performance">Improving startup performance</a></li>
+                
+                <li class="third-level"><a href="#build-step">Build Step</a></li>
+                <li class="third-level"><a href="#runtime-code">Runtime code</a></li>
+            <li class="second-level"><a href="#schema-validation">Schema Validation</a></li>
+                
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="tips-tricks">Tips &amp; Tricks<a class="headerlink" href="#tips-tricks" title="Permanent link">&para;</a></h1>
+<h2 id="typescript-typing">TypeScript Typing<a class="headerlink" href="#typescript-typing" title="Permanent link">&para;</a></h2>
+<p>If you want to cast the serialized data to the type you serialized it to, just use the angle brackets:</p>
+<pre><code class="language-typescript">import { UserList } from 'schema';
+
+const results = scrubbr.serialize&lt;UserList&gt;('UserList', data);
+</code></pre>
+<h2 id="improving-startup-performance">Improving startup performance<a class="headerlink" href="#improving-startup-performance" title="Permanent link">&para;</a></h2>
+<p>Converting the TypeScript to JSON can take a few moments. If you want to optimize startup time, you can save the schema to disk as part of your build step and then pass it directly to Scrubbr.</p>
+<p>Internally, Scrubbr uses the <a href="https://www.npmjs.com/package/ts-json-schema-generator">ts-json-schema-generator</a> library to convert TypeScript to JSON schema.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You cannot load just any JSON schema into scrubbr, it needs to follow the output conventions of <a href="https://www.npmjs.com/package/ts-json-schema-generator">ts-json-schema-generator</a>:</p>
+<ul>
+<li>All types are defined in the root <code>definitions</code> object.</li>
+<li>All references (<code>$ref</code>) point to definitions within the object. (i.e. no external references)</li>
+</ul>
+</div>
+<h3 id="build-step">Build Step<a class="headerlink" href="#build-step" title="Permanent link">&para;</a></h3>
+<p>This will build your schema file (<code>schema.ts</code>) and output it to <code>dist/schema.json</code>.</p>
+<pre><code class="language-shell">npx ts-json-schema-generator -f ./tsconfig.json -e all -p ./schema.ts -o ./dist/schema.json
+</code></pre>
+<h3 id="runtime-code">Runtime code<a class="headerlink" href="#runtime-code" title="Permanent link">&para;</a></h3>
+<pre><code class="language-typescript">import Scrubbr, { JSONSchemaDefinitions } from 'scrubbr';
+
+// Set `resolveJsonModule: true` in your tsconfig, otherwise use require()
+import * as schema from './schema.json';
+
+const scrubbr = new Scrubbr(schema as JSONSchemaDefinitions);
+</code></pre>
+<h2 id="schema-validation">Schema Validation<a class="headerlink" href="#schema-validation" title="Permanent link">&para;</a></h2>
+<p>For the sake of performance and simplicity, scrubber does not perform a schema validation. However, you can easily use <a href="https://www.npmjs.com/package/ajv">ajv</a> to validate the serialized object.</p>
+<pre><code class="language-typescript">import Ajv from 'ajv';
+import Scrubbr from 'scrubbr';
+
+const scrubbr = new Scrubbr('./schema.ts');
+
+async function main() {
+  // Serialize
+  const output = await scrubbr.serialize('UserList', data);
+  const jsonSchema = scrubbr.getSchemaFor('UserList');
+
+  // Validate
+  const ajv = new Ajv();
+  const schemaValidator = ajv.compile(jsonSchema);
+  const isValid = schemaValidator(output);
+  if (!isValid) {
+    console.error(schemaValidator.errors);
+  }
+}
+</code></pre></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>

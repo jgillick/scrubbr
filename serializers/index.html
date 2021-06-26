@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Serialize JSON data using TypeScript.">
+    <meta name="author" content="Jeremy Gillick">
+    <link rel="canonical" href="https://jgillick.github.io/scrubbr/serializers/">
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    
+    <title>Custom Serializers - Scrubbr</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
+        
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="..">Scrubbr</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Scrubbr</a>
+                    </li>
+                
+                
+                
+                    <li class="active">
+                        <a href="./">Custom Serializers</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../tips/">Tips & Tricks</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../troubleshooting/">Troubleshooting</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="..">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../tips/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/jgillick/scrubbr/edit/master/docs/serializers.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#custom-serializers">Custom Serializers</a></li>
+            <li class="second-level"><a href="#type-serializers">Type Serializers</a></li>
+                
+            <li class="second-level"><a href="#context">Context</a></li>
+                
+                <li class="third-level"><a href="#global-context">Global Context</a></li>
+            <li class="second-level"><a href="#change-types">Change Types</a></li>
+                
+            <li class="second-level"><a href="#generic-serializers">Generic Serializers</a></li>
+                
+                <li class="third-level"><a href="#alternate-example">Alternate Example</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="custom-serializers">Custom Serializers<a class="headerlink" href="#custom-serializers" title="Permanent link">&para;</a></h1>
+<p>Custom serializers give you the power to transform data and influence Scrubbr.</p>
+<h2 id="type-serializers">Type Serializers<a class="headerlink" href="#type-serializers" title="Permanent link">&para;</a></h2>
+<p>The most common serializer is the Type Serializer. This function is called whenever Scrubbr encounters a specific TypeScript type <em>anywhere</em> in the data.</p>
+<pre><code class="language-typescript">scrubbr.addTypeSerializer('User', (data, state) =&gt; {
+  // Do custom things here for User typed data
+  return data;
+});
+</code></pre>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>You can pass a custom object to the serialize function, and it will be passed to your serializers inside the state param.</p>
+<p>For example, it could be the ID of the logged-in user:</p>
+<pre><code class="language-typescript">const context = {
+  userId: 5
+}
+scrubbr.addTypeSerializer('User', serializeUser);
+const serialized = await scrubbr.serialize('MemberList', data, context);
+
+// Only return the logged-in user
+function serializeUser(data, state) {
+  const { context } = state;
+  if (data.id !== context.userId) {
+    return null;
+  }
+  return data;
+}
+</code></pre>
+<h3 id="global-context">Global Context<a class="headerlink" href="#global-context" title="Permanent link">&para;</a></h3>
+<p>You can also set the context globally and it will be merged with the context passed into the serialize function. For example:</p>
+<pre><code class="language-typescript">
+function userLoggedIn(user) {
+  scrubbr.setGlobalContext({ loggedInUserId: user.id });
+}
+
+function api() {
+  const context = {
+    timezone: 'America/Los_Angeles',
+  };
+  const serialized = await scrubbr.serialize('MemberList', data, context);
+}
+
+</code></pre>
+<p>In this example, the context passed to serializers will potentially include both <code>timezone</code> and <code>loggedInUserId</code>, if the <code>userLoggedIn</code> function were called.</p>
+<h2 id="change-types">Change Types<a class="headerlink" href="#change-types" title="Permanent link">&para;</a></h2>
+<p>Your serializer can tell Scrubbr to use a different type for serialization with the <code>useType</code> function.</p>
+<p>For example, maybe we want to use the limited <code>PublicUser</code> type for all <code>User</code> objects that are not the logged-in user:</p>
+<pre><code class="language-typescript">type User = {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+
+type PublicUser = {
+  id: number;
+  name: string;
+}
+</code></pre>
+<pre><code class="language-typescript">import Scrubbr, { useType } from '../src/';
+
+const context = {
+  userId: 5
+}
+scrubbr.addTypeSerializer('User', serializeUser);
+const serialized = await scrubbr.serialize('MemberList', data, context);
+
+// Convert User to PublicUser for everyone but the logged-in user
+function serializeUser(data, state) {
+  const { context } = state;
+  if (data.id !== context.userId) {
+    return useType('PublicUser');
+  }
+  return data;
+}
+</code></pre>
+<h2 id="generic-serializers">Generic Serializers<a class="headerlink" href="#generic-serializers" title="Permanent link">&para;</a></h2>
+<p>Generic serializers are called for every node in the object being serialized. Be aware that this can slow down the overall serialization process.</p>
+<pre><code class="language-typescript">scrubbr.addGenericSerializer((data, state) =&gt; {
+  // Transform the data here
+  return data;
+});
+</code></pre>
+<p>Inside the serializer you'll often uses the following state properties to determine where you are:</p>
+<ul>
+<li><code>state.path</code> - The object path to where you are (i.e. <code>blog.posts[1].author.name</code>)</li>
+<li><code>state.name</code> - The name of the property that is being serialized.</li>
+<li><code>state.index</code> - If the node being serialized is an item in an array, this is the index in that array.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In most cases Type Serializers provide a cleaner and more elegant way to serialize your data than Generic Serializers.</p>
+</div>
+<p>Let's say we want to convert every <code>startTime</code> date value to the local timezone.</p>
+<pre><code class="language-typescript">type Event = {
+  name: string;
+  startTime: Date;
+}
+type Meeting = {
+  name: string;
+  startTime: string;
+  recurring: string;
+}
+type AppointmentList = {
+  events: Event[];
+  meeting: Meeting[];
+}
+</code></pre>
+<pre><code class="language-typescript">import moment from 'moment-timezone';
+import Scrubbr, {ScrubbrState} from 'scrubbr';
+
+const scrubbr = new Scrubbr('./schema.ts');
+
+function serializeStartTime(data: any, state: ScrubbrState) {
+  const { name } = state;
+  const { timezone } = state.context;
+
+  if (name == 'startTime') {
+    return moment(data).tz(timezone).format();
+  }
+  return data;
+}
+
+function api() {
+  const data = getData();
+
+  const context = {
+    timezone: 'America/Los_Angeles',
+  };
+  scrubbr.addGenericSerializer(serializeStartTime);
+  const serialized = await scrubbr.serialize('AppointmentList', data, context);
+}
+
+function getData() {
+  return {
+    events: [
+      {
+        name: 'Pool party',
+        startTime: '2021-06-26T19:00:00.000Z',
+      }
+    ],
+    meeting: [
+      {
+        name: 'Daily standup',
+        startTime: '2021-06-25T17:00:00.000Z',
+        recurring: 'daily',
+      }
+    ]
+  }
+}
+
+</code></pre>
+<h3 id="alternate-example">Alternate Example<a class="headerlink" href="#alternate-example" title="Permanent link">&para;</a></h3>
+<p>But let's see a more elegant way to handle the previous example. Instead of using the crude generic serializer, you can apply a consistent type to <code>startTime</code>
+and use a type serializer.</p>
+<pre><code class="language-typescript">type StartTime = Date;
+
+type Event = {
+  name: string;
+  startTime: StartTime;
+}
+type Meeting = {
+  name: string;
+  startTime: StartTime;
+}
+type AppointmentList = {
+  events: Event[];
+  meeting: Meeting[];
+  recurring: string;
+}
+</code></pre>
+<pre><code class="language-typescript">import moment from 'moment-timezone';
+import Scrubbr, {ScrubbrState} from 'scrubbr';
+
+const scrubbr = new Scrubbr('./schema.ts');
+
+function serializeStartTime(data: any, state: ScrubbrState) {
+  const { name } = state;
+  const { timezone } = state.context;
+  return moment(data).tz(timezone).format();
+}
+
+function api() {
+  const data = getData();
+
+  const context = {
+    timezone: 'America/Los_Angeles',
+  };
+  scrubbr.addTypeSerializer('StartTime', serializeStartTime);
+  const serialized = await scrubbr.serialize('AppointmentList', data, context);
+}
+
+function getData() {
+  return {
+    events: [
+      {
+        name: 'Pool party',
+        startTime: '2021-06-26T19:00:00.000Z',
+      }
+    ],
+    meeting: [
+      {
+        name: 'Daily standup',
+        startTime: '2021-06-25T17:00:00.000Z',
+        recurring: 'daily',
+      }
+    ]
+  }
+}
+
+</code></pre></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>
