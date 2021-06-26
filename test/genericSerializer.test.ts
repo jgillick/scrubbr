@@ -1,7 +1,7 @@
 import 'jest';
 import Scrubbr, { useType } from '../src/';
 
-describe('Path serializer', () => {
+describe('Generic serializer', () => {
   let serializerFn: jest.Mock;
   let scrubbr: Scrubbr;
 
@@ -15,8 +15,8 @@ describe('Path serializer', () => {
 
   beforeEach(() => {
     serializerFn = jest.fn((data, _state) => data);
-    scrubbr = new Scrubbr(`${__dirname}/pathSerializer.schema.ts`);
-    scrubbr.addPathSerializer(serializerFn);
+    scrubbr = new Scrubbr(`${__dirname}/genericSerializer.schema.ts`);
+    scrubbr.addGenericSerializer(serializerFn);
   });
 
   test('call serializer for every node of the object', async () => {
@@ -26,7 +26,7 @@ describe('Path serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('PathSerializerTest', data);
+    const serialized = await scrubbr.serialize('GenericSerializerTest', data);
 
     expect(serializerFn).toBeCalled();
     expect(paths).toEqual([
@@ -42,16 +42,16 @@ describe('Path serializer', () => {
     expect(serialized.child.extra).toBeUndefined();
   });
 
-  test('pass context to path serializers', async () => {
+  test('pass context to generic serializers', async () => {
     const context = { foo: 'bar' };
 
-    // Check that the context is passed to each node of the path
+    // Check that the context is passed to each node
     let contextReceived: boolean | null = null;
     serializerFn.mockImplementation((data, state) => {
       if (contextReceived === false) {
         return;
       }
-      if (state.context != context) {
+      if (state.context.foo != context.foo) {
         throw new Error(
           `${JSON.stringify(state.context)} does not match ${JSON.stringify(
             context
@@ -61,7 +61,7 @@ describe('Path serializer', () => {
       return data;
     });
 
-    await scrubbr.serialize('PathSerializerTest', data, context);
+    await scrubbr.serialize('GenericSerializerTest', data, context);
   });
 
   test('modify node', async () => {
@@ -72,7 +72,7 @@ describe('Path serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('PathSerializerTest', data);
+    const serialized = await scrubbr.serialize('GenericSerializerTest', data);
     expect(serialized.child.node).toBe('Changed!');
   });
 
@@ -86,19 +86,19 @@ describe('Path serializer', () => {
       return data;
     });
 
-    await scrubbr.serialize('PathSerializerTest', data);
+    await scrubbr.serialize('GenericSerializerTest', data);
     expect(paths).toEqual(['', 'child', 'child.node', 'children']);
   });
 
   test('override node type', async () => {
     serializerFn.mockImplementation((data, state) => {
       if (state.path == 'child') {
-        return useType('PathSerializerExtended');
+        return useType('GenericSerializerExtended');
       }
       return data;
     });
 
-    const serialized = await scrubbr.serialize('PathSerializerTest', data);
+    const serialized = await scrubbr.serialize('GenericSerializerTest', data);
     expect(serialized.child.extra).toBe('bar');
   });
 });

@@ -5,44 +5,12 @@ import * as tsj from 'ts-json-schema-generator';
 import { LogLevel, Logger } from './Logger';
 import { ScrubbrState } from './ScrubbrState';
 import { UseType } from './helpers';
-
-export type TypeSerializer = (
-  data: any,
-  state: ScrubbrState
-) => any | Promise<any>;
-
-export type PathSerializer = (
-  data: any,
-  state: ScrubbrState
-) => any | Promise<any>;
-
-export type ScrubbrOptions = {
-  /**
-   * Set the logger level: LogLevel.NONE, LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG
-   * @default LogLevel.NONE
-   */
-  logLevel?: LogLevel;
-
-  /**
-   * Add indents to better show where in the object it is.
-   * This is most useful when logLevel is set to LogLevel.DEBUG.
-   * @default false
-   */
-  logNesting?: boolean | string;
-
-  /**
-   * A string prefix you want to precede all log messages
-   * @default ""
-   */
-  logPrefix?: string;
-
-  /**
-   * Throw an exception on errors that could effect the integrity of your data.
-   * Otherwise, the error will just be logged if the log level is set to LogLevel.ERROR or above.
-   * @default true
-   */
-  throwOnError?: boolean;
-};
+import {
+  ScrubbrOptions,
+  JSONSchemaDefinitions,
+  TypeSerializer,
+  GenericSerializer,
+} from './types';
 
 const defaultOptions = {
   logLevel: LogLevel.NONE,
@@ -52,20 +20,14 @@ const defaultOptions = {
 };
 
 type ObjectNode = Record<string, any>;
-export type JSONSchemaDefinitions =
-  | JSONSchema7
-  | {
-      definitions: {
-        [k: string]: JSONSchema7;
-      };
-    };
 
 export default class Scrubbr {
   options: ScrubbrOptions;
   private logger: Logger;
   private schema: JSONSchema7 = {};
   private typeSerializers = new Map<string, TypeSerializer[]>();
-  private pathSerializers: PathSerializer[] = [];
+  private genericSerializers: GenericSerializer[] = [];
+  private globalContext: object = {};
 
   /**
    * Create new scrubbr serializer
@@ -90,8 +52,8 @@ export default class Scrubbr {
   clone(options: ScrubbrOptions): Scrubbr {
     const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, options);
 
-    this.pathSerializers.forEach((serializerFn) => {
-      cloned.addPathSerializer(serializerFn);
+    this.genericSerializers.forEach((serializerFn) => {
+      cloned.addGenericSerializer(serializerFn);
     });
     this.typeSerializers.forEach((serializers, typeName) => {
       serializers.forEach((serializerFn) => {
@@ -143,7 +105,7 @@ export default class Scrubbr {
    * @param {string} typeName - The name of the type to return the schema for.
    * @return {JSONSchema7 | null} The JSON schema for the type, or null if it was not found.
    */
-  getSchemaForType(typeName: string): JSONSchema7 | null {
+   getSchemaFor(typeName: string): JSONSchema7 | null {
     const definitions = this.schema?.definitions || {};
     if (typeof definitions[typeName] === 'undefined') {
       return null;
@@ -163,11 +125,35 @@ export default class Scrubbr {
   }
 
   /**
-   * Add a custom serializer function that's called for each node in the object.
+   * Add a generic custom serializer function that's called for each node in the object.
    * @param {function} serializer - The serializer function.
    */
-  addPathSerializer(serializer: PathSerializer) {
-    this.pathSerializers.push(serializer);
+   addGenericSerializer(serializer: GenericSerializer) {
+    this.genericSerializers.push(serializer);
+  }
+
+  /**
+   * Set the global context object, that will be automatically merged with the context passed to the serialize function.
+   * You can use this for setting things like the logged-in user, at a global level.
+   * @param {object} context - Any object you want to set as the context.
+   * @param {boolean} merge - Automatically merge this context with the existing global context (defaults false)
+   */
+  setGlobalContext(context: object, merge: boolean = false) {
+    if (merge) {
+      this.globalContext = {
+        ...this.globalContext,
+        ...context,
+      };
+    } else {
+      this.globalContext = context;
+    }
+  }
+
+  /**
+   * Retrieve the global context object.
+   */
+  getGlobalContext() {
+    return this.globalContext;
   }
 
   /**
@@ -178,12 +164,12 @@ export default class Scrubbr {
    */
   async serialize<Type = any>(
     schemaType: string,
-    data: Object,
-    context: any = null
+    data: object,
+    context: object = {}
   ): Promise<Type> {
     this.logger.info(`Serializing data with TS type: '${schemaType}'`);
 
-    const schema = this.getSchemaForType(schemaType);
+    const schema = this.getSchemaFor(schemaType);
     if (!schema) {
       throw new Error(`Could not find the type: ${schemaType}`);
     }
@@ -191,6 +177,14 @@ export default class Scrubbr {
     // Validate JSON and clone
     const cloned = JSON.parse(JSON.stringify(data));
 
+    // Merge contexts
+    context = {
+      ...this.globalContext,
+      ...context,
+    }
+    this.logger.debug(`Using context: '${JSON.stringify(context, null, '  ')}'`);
+
+    // Serialize
     const state: ScrubbrState = new ScrubbrState(
       data,
       schema,
@@ -241,7 +235,7 @@ export default class Scrubbr {
 
       const propPath = `${pathPrefix}${name}`;
       state.logger.debug(`[PATH] ${propPath}`);
-      const propState = state.createNodeState(propPath, propSchema);
+      const propState = state.createNodeState(value, name, propPath, propSchema);
 
       // Property not defined in the schema, do not serialize property
       if (!propSchema) {
@@ -278,9 +272,11 @@ export default class Scrubbr {
 
       const itemPath = `${state.path}[${i}]`;
       state.logger.debug(`[PATH] ${itemPath}`);
-      const itemState = state.createNodeState(
+      const itemState = state.createListState(
+        value,
+        i,
         itemPath,
-        itemSchema as JSONSchema7
+        itemSchema as JSONSchema7,
       );
 
       // Skip items past the tuple length
@@ -314,7 +310,7 @@ export default class Scrubbr {
     }
 
     // Run serializers
-    data = await this.runPathSerializers(data, state);
+    data = await this.runGenericSerializers(data, state);
     data = await this.runTypeSerializers(data, state);
 
     // If the type definition is an alias to a union, walk one level deeper
@@ -361,7 +357,7 @@ export default class Scrubbr {
 
       let typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
       typeName = decodeURI(typeName);
-      const type = this.getSchemaForType(typeName);
+      const type = this.getSchemaFor(typeName);
       if (type) {
         foundTypes.set(typeName, type);
       } else {
@@ -422,7 +418,7 @@ export default class Scrubbr {
         state.schemaType = schemaType;
         state.schemaDef = {};
       } else {
-        const schemaDef = this.getSchemaForType(schemaType);
+        const schemaDef = this.getSchemaFor(schemaType);
         if (!schemaDef) {
           this.error(
             `Could not find a type definition for '${schemaType}'`,
@@ -446,19 +442,19 @@ export default class Scrubbr {
   /**
    * Run serializers on the data path
    */
-  private async runPathSerializers(
+  private async runGenericSerializers(
     dataNode: Object,
     state: ScrubbrState
   ): Promise<Object> {
-    if (!this.pathSerializers.length) {
+    if (!this.genericSerializers.length) {
       return dataNode;
     }
 
     state.logger.debug(
-      `Running ${this.pathSerializers.length} path serializers`
+      `Running ${this.genericSerializers.length} generic serializers`
     );
 
-    return this.pathSerializers.reduce((promise, serializerFn) => {
+    return this.genericSerializers.reduce((promise, serializerFn) => {
       return promise.then((data) => {
         const serialized = serializerFn(data, state);
         if (serialized instanceof UseType) {
@@ -483,7 +479,7 @@ export default class Scrubbr {
       return dataNode;
     }
 
-    if (!this.getSchemaForType(typeName)) {
+    if (!this.getSchemaFor(typeName)) {
       this.error(`No type named '${typeName}'.`, state);
       return dataNode;
     }

@@ -1,5 +1,5 @@
 import 'jest';
-import Scrubbr, { useType } from '../src/';
+import Scrubbr, { useType, ScrubbrState } from '../src/';
 
 describe('Union types', () => {
   let scrubbr: Scrubbr;
@@ -10,9 +10,9 @@ describe('Union types', () => {
     scrubbr = new Scrubbr(`${__dirname}/unionType.schema.ts`);
 
     // Track what type is chosen for ever path node
-    firstSerializerFn = jest.fn((data, _state) => data);
-    scrubbr.addPathSerializer(firstSerializerFn);
-    scrubbr.addPathSerializer((data, state) => {
+    firstSerializerFn = jest.fn((data: any, _state: ScrubbrState) => data);
+    scrubbr.addGenericSerializer(firstSerializerFn);
+    scrubbr.addGenericSerializer((data: any, state: ScrubbrState) => {
       pathTypes.set(state.path, state.schemaType);
       return data;
     });

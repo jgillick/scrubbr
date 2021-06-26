@@ -1,4 +1,4 @@
-import { ScrubbrOptions } from './Scrubbr';
+import { ScrubbrOptions } from './';
 
 export enum LogLevel {
   DEBUG = 4,
