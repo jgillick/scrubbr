@@ -1,3 +1,7 @@
+import { JSONSchema7 } from 'json-schema';
+import { ScrubbrState } from './ScrubbrState';
+import { LogLevel } from './Logger';
+
 /**
  * Serializer function called for a specific TypeScript type.
  */
