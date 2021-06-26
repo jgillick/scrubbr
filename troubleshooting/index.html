@@ -28,6 +28,7 @@
         <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/github.min.css">
         
     
+    <link href="../css/overrides.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -137,11 +138,8 @@
 <p>If scrubbr is not returning the data you're expecting, the first place to look is at the internal schema definitions:</p>
 <pre><code class="language-typescript">console.log(scrubbr.getSchema());
 </code></pre>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
 <p>This is the <a href="https://json-schema.org/understanding-json-schema/">JSON schema</a> that was created from your TypeScript file.</p>
-</div>
-<p>Next look at the schema definition for the TypeScript type you're trying to serialize to.</p>
+<p>Next look at the schema definition for the type you're trying to serialize to.</p>
 <pre><code class="language-typescript">console.log(scrubbr.getSchemaFor('UserList'));
 </code></pre>
 <p>Verify that this returns a <a href="https://json-schema.org/understanding-json-schema/">JSON schema</a> object and that it contains the properties you want serialized.</p>
