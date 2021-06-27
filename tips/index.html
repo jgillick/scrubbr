@@ -131,6 +131,8 @@
                 
                 <li class="third-level"><a href="#build-step">Build Step</a></li>
                 <li class="third-level"><a href="#runtime-code">Runtime code</a></li>
+            <li class="second-level"><a href="#clone-the-scrubbr-serializer">Clone the scrubbr serializer</a></li>
+                
             <li class="second-level"><a href="#schema-validation">Schema Validation</a></li>
                 
     </ul>
@@ -166,6 +168,24 @@ const results = scrubbr.serialize&lt;UserList&gt;('UserList', data);
 import * as schema from './schema.json';
 
 const scrubbr = new Scrubbr(schema as JSONSchemaDefinitions);
+</code></pre>
+<h2 id="clone-the-scrubbr-serializer">Clone the scrubbr serializer<a class="headerlink" href="#clone-the-scrubbr-serializer" title="Permanent link">&para;</a></h2>
+<p>For performance reasons you might not want all the custom serializers for your entire app running on every object serialized. You also probably don't want to manually add the global serializers every time.</p>
+<p>You can use <code>clone()</code> to create API-specific scrubbrs off the global version. The TypeScript schema, scrubbr options, and custome serializers will be included in the cloned version.</p>
+<p>In this example we want the <code>userSerializer</code> used all data serialized and the <code>commentSerializer</code> only applied to the comment list API:</p>
+<pre><code class="language-typescript">
+// Global config
+const scrubbr = new Scrubbr('./schema.ts');
+scrubbr.addTypeSerializer('User', userSerializer);
+
+// API endpoint
+function commentListApi() {
+  const commentScrubbr = scrubbr.clone();
+  commentScrubbr.addTypeSerializer('Comment', commentSerializer);
+
+  return scrubbr.serialize('CommentList', data);
+}
+
 </code></pre>
 <h2 id="schema-validation">Schema Validation<a class="headerlink" href="#schema-validation" title="Permanent link">&para;</a></h2>
 <p>For the sake of performance and simplicity, scrubber does not perform a schema validation. However, you can easily use <a href="https://www.npmjs.com/package/ajv">ajv</a> to validate the serialized object.</p>
