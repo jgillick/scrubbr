@@ -41,6 +41,30 @@ import * as schema from './schema.json';
 const scrubbr = new Scrubbr(schema as JSONSchemaDefinitions);
 ```
 
+## Clone the scrubbr serializer
+
+For performance reasons you might not want all the custom serializers for your entire app running on every object serialized. You also probably don't want to manually add the global serializers every time.
+
+You can use `clone()` to create API-specific scrubbrs off the global version. The TypeScript schema, scrubbr options, and custome serializers will be included in the cloned version.
+
+In this example we want the `userSerializer` used all data serialized and the `commentSerializer` only applied to the comment list API:
+
+```typescript
+
+// Global config
+const scrubbr = new Scrubbr('./schema.ts');
+scrubbr.addTypeSerializer('User', userSerializer);
+
+// API endpoint
+function commentListApi() {
+  const commentScrubbr = scrubbr.clone();
+  commentScrubbr.addTypeSerializer('Comment', commentSerializer);
+
+  return scrubbr.serialize('CommentList', data);
+}
+
+```
+
 ## Schema Validation
 
 For the sake of performance and simplicity, scrubber does not perform a schema validation. However, you can easily use [ajv](https://www.npmjs.com/package/ajv) to validate the serialized object.

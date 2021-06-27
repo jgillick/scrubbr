@@ -53,7 +53,7 @@ export default class Scrubbr {
     if (!options) {
       options = this.options;
     }
-    const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, option);
+    const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, options);
 
     this.genericSerializers.forEach((serializerFn) => {
       cloned.addGenericSerializer(serializerFn);
@@ -124,6 +124,7 @@ export default class Scrubbr {
   addTypeSerializer(typeName: string | string[], serializer: TypeSerializer) {
     const typeNames = (Array.isArray(typeName)) ? typeName : [typeName];
     typeNames.forEach((name) => {
+      this.logger.debug(`Adding custom serializer for type: ${name}`);
       const serializerList = this.typeSerializers.get(name) || [];
       serializerList.push(serializer);
       this.typeSerializers.set(name, serializerList);
@@ -135,6 +136,7 @@ export default class Scrubbr {
    * @param {function} serializer - The serializer function.
    */
    addGenericSerializer(serializer: GenericSerializer) {
+    this.logger.debug(`Adding generic serializer`);
     this.genericSerializers.push(serializer);
   }
 
@@ -171,14 +173,26 @@ export default class Scrubbr {
   async serialize<Type = any>(
     schemaType: string,
     data: object,
-    context: object = {}
+    context: object = {},
+    options: ScrubbrOptions = {}
   ): Promise<Type> {
-    this.logger.info(`Serializing data with TS type: '${schemaType}'`);
-
     const schema = this.getSchemaFor(schemaType);
     if (!schema) {
-      throw new Error(`Could not find the type: ${schemaType}`);
+      throw this.error(`Could not find the type: ${schemaType}`);
     }
+    this.logger.info(`Serializing data with TS type: '${schemaType}'`);
+
+    // Create state
+    options = {
+      ...this.options,
+      ...options,
+    };
+    const state: ScrubbrState = new ScrubbrState(
+      data,
+      schema,
+      options,
+      context
+    );
 
     // Validate JSON and clone
     const cloned = JSON.parse(JSON.stringify(data));
@@ -191,12 +205,6 @@ export default class Scrubbr {
     this.logger.debug(`Using context: '${JSON.stringify(context, null, '  ')}'`);
 
     // Serialize
-    const state: ScrubbrState = new ScrubbrState(
-      data,
-      schema,
-      this.options,
-      context
-    );
     state.rootSchemaType = schemaType;
     state.schemaType = schemaType;
     const serialized = (await this.walkData(cloned, state)) as Type;
@@ -545,10 +553,14 @@ export default class Scrubbr {
   /**
    * Handle an error by either throwing an exception or logging it.
    */
-  error(message: string, state: ScrubbrState) {
-    if (this.options.throwOnError) {
+  error(message: string, state?: ScrubbrState) {
+    const throwOnError = (state) ? state?.options?.throwOnError : this.options.throwOnError;
+    if (throwOnError) {
       throw new Error(message);
     }
-    state.logger.error(message);
+    if (state) {
+      state.logger.error(message);
+    }
+    this.logger.error(message);
   }
 }

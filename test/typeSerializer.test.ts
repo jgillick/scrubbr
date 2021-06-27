@@ -56,4 +56,27 @@ describe('Type serializers', () => {
     expect(typeASerializerFn).toHaveBeenCalledTimes(0);
     expect(typeBSerializerFn).toHaveBeenCalledTimes(1);
   });
+
+  test('add multiple types to a single serializer', async () => {
+    let receivedTypes = new Set<string>();
+
+    const serializerFn = jest.fn((data, state) => {
+      receivedTypes.add(state.schemaType);
+      return data;
+    });
+
+    const data = {
+      node: {
+        id: 'bar',
+        value: 'boo',
+      },
+      other: { value: 'foo' },
+    };
+
+    scrubbr.addTypeSerializer(['TargetTypeA', 'TargetTypeB'], serializerFn);
+    await scrubbr.serialize('TypeSerializerTest', data, {});
+
+    expect(serializerFn).toHaveBeenCalledTimes(2);
+    expect(Array.from(receivedTypes)).toEqual(['TargetTypeA', 'TargetTypeB']);
+  })
 });
