@@ -10,7 +10,7 @@ import {
   JSONSchemaDefinitions,
   TypeSerializer,
   GenericSerializer,
-} from './types';
+} from '.';
 
 const defaultOptions = {
   logLevel: LogLevel.NONE,
@@ -31,29 +31,50 @@ export default class Scrubbr {
 
   /**
    * Create new scrubbr serializer
-   * @param {string | JSONSchema7} schema - The TypeScript schema file or JSON object to use for serialization.
-   * @param {ScrubbrOptions} options - Scrubbr options.
+   * @param schema - The TypeScript schema file or JSON object to use for serialization.
+   * @param options - Scrubbr options.
    */
   constructor(
     schema: string | JSONSchemaDefinitions,
-    options: ScrubbrOptions = {}
+    options: ScrubbrOptions
   ) {
     this.options = {
       ...defaultOptions,
-      ...options,
+      ...(options || {}),
     };
     this.logger = new Logger(options);
     this.loadSchema(schema);
   }
 
   /**
-   * Create new scrubber with the same options and custom serializers
+   * Create a duplicate version of this scrubbr with all the same serializers, global context, and options.
+   *
+   * This is useful to create a global scrubbr with serializer that should be used on all data, and all other
+   * scrubbrs are created from it for more specific use-cases.
+   *
+   * @example
+   * ```typescript
+   * // Global config
+   * const scrubbr = new Scrubbr('./schema.ts');
+   * scrubbr.addTypeSerializer('User', userSerializer);
+   *
+   * // API endpoint
+   * function commentListApi() {
+   *   const commentScrubbr = scrubbr.clone();
+   *   commentScrubbr.addTypeSerializer('Comment', commentSerializer);
+   *
+   *   return scrubbr.serialize('CommentList', data);
+   * }
+   *
+   * ```
+   *
    */
   clone(options?: ScrubbrOptions): Scrubbr {
     if (!options) {
       options = this.options;
     }
     const cloned = new Scrubbr(this.schema as JSONSchemaDefinitions, options);
+    cloned.setGlobalContext(this.globalContext);
 
     this.genericSerializers.forEach((serializerFn) => {
       cloned.addGenericSerializer(serializerFn);
@@ -97,16 +118,16 @@ export default class Scrubbr {
   }
 
   /**
-   * Return the schema
+   * Return the entire generated schema for the loaded TypeScript file.
    */
   getSchema(): JSONSchema7 {
     return this.schema;
   }
 
   /**
-   * Return the schema for a TypeScript type.
-   * @param {string} typeName - The name of the type to return the schema for.
-   * @return {JSONSchema7 | null} The JSON schema for the type, or null if it was not found.
+   * Get the the generated JSON schema for a TypeScript type.
+   * @param typeName - The name of the type to return the schema for.
+   * @returns The JSON schema for the type, or null if it was not found.
    */
    getSchemaFor(typeName: string): JSONSchema7 | null {
     const definitions = this.schema?.definitions || {};
@@ -118,8 +139,8 @@ export default class Scrubbr {
 
   /**
    * Add a function to serialize a schema type
-   * @param {string | string[]} typeName - One or more type names to register the serializer for.
-   * @param {function} serializer - The serializer function.
+   * @param typeName - One or more type names to register the serializer for.
+   * @param serializer - The serializer function.
    */
   addTypeSerializer(typeName: string | string[], serializer: TypeSerializer) {
     const typeNames = (Array.isArray(typeName)) ? typeName : [typeName];
@@ -133,7 +154,7 @@ export default class Scrubbr {
 
   /**
    * Add a generic custom serializer function that's called for each node in the object.
-   * @param {function} serializer - The serializer function.
+   * @param serializer - The serializer function.
    */
    addGenericSerializer(serializer: GenericSerializer) {
     this.logger.debug(`Adding generic serializer`);
@@ -143,8 +164,9 @@ export default class Scrubbr {
   /**
    * Set the global context object, that will be automatically merged with the context passed to the serialize function.
    * You can use this for setting things like the logged-in user, at a global level.
-   * @param {object} context - Any object you want to set as the context.
-   * @param {boolean} merge - Automatically merge this context with the existing global context (defaults false)
+   * @param context - Any object you want to set as the context.
+   * @param merge - Automatically merge this context with the existing global context (defaults false)
+   *                Otherwise, the global context will be overwritten.
    */
   setGlobalContext(context: object, merge: boolean = false) {
     if (merge) {
@@ -166,9 +188,18 @@ export default class Scrubbr {
 
   /**
    * Serialize data based on a TypeScript type.
-   * @param {string} schemaType - The name of the typescript type to serialize the data with.
-   * @param {object} data - The data to serialize
-   * @param {any} context - Any data you want sent to the custom serializer functions.
+   *
+   * You can influence the return type by using the generic angle brackets:
+   *
+   * @example
+   * ```
+   *  scrubbr.serialize<UserList>('UserList', data);
+   * ```
+   *
+   * @param schemaType - The name of the typescript type to serialize the data with.
+   * @param data - The data to serialize
+   * @param context - Any data you want sent to the custom serializer functions.
+   * @param options - Set options for just this serialization.
    */
   async serialize<Type = any>(
     schemaType: string,
@@ -213,8 +244,8 @@ export default class Scrubbr {
 
   /**
    * Traverse into a node of data on an object to serialize.
-   * @param {object} node: The data object to start from
-   * @param {ScrubbrState} state - The serializing state.
+   * @param node: The data object to start from
+   * @param state - The serializing state.
    */
   private async walkData(node: Object, state: ScrubbrState): Promise<Object> {
     const serializedNode = await this.serializeNode(node, state);
@@ -231,8 +262,8 @@ export default class Scrubbr {
 
   /**
    * Serialize all the properties of an object.
-   * @param {object} node - The object to serialize
-   * @param {ScrubbrState} state - The serializing state.
+   * @param node - The object to serialize
+   * @param state - The serializing state.
    */
   private async walkObjectNode(
     node: ObjectNode,
@@ -266,8 +297,8 @@ export default class Scrubbr {
 
   /**
    * Serialize all the items of an array.
-   * @param {any} node[] - The array to serialize
-   * @param {ScrubbrState} state - The serializing state.
+   * @param node[] - The array to serialize
+   * @param state - The serializing state.
    */
   private async walkArrayNode(node: any[], state: ScrubbrState): Promise<any> {
     const schema = state.schemaDef;
@@ -307,8 +338,8 @@ export default class Scrubbr {
 
   /**
    * Serialize a single piece of data.
-   * @param {any} data - The data to serialize
-   * @param {ScrubbrState} state - The serializing state.
+   * @param data - The data to serialize
+   * @param state - The serializing state.
    */
   private async serializeNode(data: any, state: ScrubbrState): Promise<Object> {
     const originalDef = state.schemaDef;
@@ -539,7 +570,7 @@ export default class Scrubbr {
   /**
    * Check if this type has already been processed at this level.
    */
-  isCircularReference(typeName: string, state: ScrubbrState): boolean {
+  private isCircularReference(typeName: string, state: ScrubbrState): boolean {
     if (state.seenTypes.includes(typeName)) {
       this.error(
         `Scrubbr detected a circular reference with type ${typeName} at object path: ${state.path}`,
@@ -553,7 +584,7 @@ export default class Scrubbr {
   /**
    * Handle an error by either throwing an exception or logging it.
    */
-  error(message: string, state?: ScrubbrState) {
+  private error(message: string, state?: ScrubbrState) {
     const throwOnError = (state) ? state?.options?.throwOnError : this.options.throwOnError;
     if (throwOnError) {
       throw new Error(message);

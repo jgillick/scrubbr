@@ -84,4 +84,7 @@ async function api() {
 
 Follow along for more advanced features.
 
-Learn about [Custom Serializers](serializers.md) next.
+- [Custom Serializers](serializers.md)
+- [Tips & Tricks](tips.md)
+- [Troubleshooting](troubleshooting.md)
+- [API Docs](api/scrubbr.md)

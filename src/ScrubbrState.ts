@@ -44,12 +44,12 @@ export class ScrubbrState {
   schemaDef: JSONSchema7;
 
   /**
-   * The context object passed in to the serialize function.
+   * The context object passed to the serialize function.
    */
   context: any = {};
 
   /**
-   * The nesting level at this node of the data being serialized
+   * The nesting level at this node of the data being serialized.
    */
   nesting: number = 0;
 

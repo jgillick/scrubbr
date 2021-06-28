@@ -7,6 +7,15 @@ site_url: https://jgillick.github.io/scrubbr/
 # Repo
 repo_name: GitHub
 repo_url: https://github.com/jgillick/scrubbr
+remote_branch: gh-pages
+
+# Top Navigation
+nav:
+    - Quick Start: 'index.md'
+    - serializers.md
+    - tips.md
+    - troubleshooting.md
+    - API: 'api/scrubbr.md'
 
 # Dev
 # dev_addr: localhost:8000

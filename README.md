@@ -6,13 +6,11 @@
 
 Serialize JSON data using TypeScript.
 
-[Documentation](https://jgillick.github.io/scrubbr/)
-
 ![Simple Example](https://github.com/jgillick/scrubbr/raw/main/example.png)
 
 Serializing data sent from the webserver to the client shouldn't be hard. If you're already using TypeScript, you have everything you need. Scrubbr will use your TypeScript types to deeply transform and sanitize your data.
 
-[Documentation](https://jgillick.github.io/scrubbr/)
+[Documentation](https://jgillick.github.io/scrubbr/) | [API](https://jgillick.github.io/scrubbr/api/scrubbr/)
 
 ## Install
 
