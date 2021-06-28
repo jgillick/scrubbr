@@ -172,7 +172,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "scrubbr!GenericSerializer:type",
-          "docComment": "/**\n * Serializer called for each node within the data object that is being serialized.\n */\n",
+          "docComment": "/**\n * Serializer called for each node within the data object that is being serialized.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -215,7 +215,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "scrubbr!JSONSchemaDefinitions:type",
-          "docComment": "/**\n * JSON Schema object that can be passed into Scrubbr. This needs to follow the format that `ts-json-schema-generator` uses: * All types are defined in the root `definitions` block. * All references (`$ref`) point to definitions within the JSON object. (i.e. no external references)\n */\n",
+          "docComment": "/**\n * JSON Schema object that can be passed into Scrubbr. This needs to follow the format that `ts-json-schema-generator` uses: * All types are defined in the root `definitions` block. * All references (`$ref`) point to definitions within the JSON object. (i.e. no external references)\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -254,7 +254,7 @@
         {
           "kind": "Enum",
           "canonicalReference": "scrubbr!LogLevel:enum",
-          "docComment": "",
+          "docComment": "/**\n * The scrubbr log level. Setting the log level will enabled logging for that level and below.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -267,7 +267,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "scrubbr!LogLevel.DEBUG:member",
-              "docComment": "",
+              "docComment": "/**\n * Log additional debug information. Set logNesting to true to also indent the logs with the data nesting.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -288,7 +288,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "scrubbr!LogLevel.ERROR:member",
-              "docComment": "",
+              "docComment": "/**\n * Log errors\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -309,7 +309,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "scrubbr!LogLevel.INFO:member",
-              "docComment": "",
+              "docComment": "/**\n * Display basic information as well as warnings and errors.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -330,7 +330,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "scrubbr!LogLevel.NONE:member",
-              "docComment": "",
+              "docComment": "/**\n * Disable logging.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -351,7 +351,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "scrubbr!LogLevel.WARN:member",
-              "docComment": "",
+              "docComment": "/**\n * Log warnings and errors.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -404,7 +404,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", options: "
+                  "text": ", options?: "
                 },
                 {
                   "kind": "Reference",
@@ -779,7 +779,7 @@
             {
               "kind": "Method",
               "canonicalReference": "scrubbr!Scrubbr#serialize:member(1)",
-              "docComment": "/**\n * Serialize data based on a TypeScript type.\n *\n * You can influence the return type by using the generic angle brackets:\n *\n * @param schemaType - The name of the typescript type to serialize the data with.\n *\n * @param data - The data to serialize\n *\n * @param context - Any data you want sent to the custom serializer functions.\n *\n * @param options - Set options for just this serialization.\n *\n * @example\n * ```\n *  scrubbr.serialize<UserList>('UserList', data);\n * ```\n *\n */\n",
+              "docComment": "/**\n * Serialize data based on a TypeScript type.\n *\n * You can influence the return type by using the generic angle brackets:\n *\n * @param schemaType - The name of the typescript type to serialize the data with.\n *\n * @param data - The data to serialize\n *\n * @param context - Any data you want sent to the custom serializer functions.\n *\n * @param options - Set options for just this serialization.\n *\n * @example\n * ```\n *  scrubbr.serialize<UserList>('UserList', data);\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1406,7 +1406,7 @@
             {
               "kind": "Property",
               "canonicalReference": "scrubbr!ScrubbrState#nesting:member",
-              "docComment": "/**\n * The nesting level at this node of the data being serialized\n */\n",
+              "docComment": "/**\n * The nesting level at this node of the data being serialized.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1659,7 +1659,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "scrubbr!TypeSerializer:type",
-          "docComment": "/**\n * Serializer function called for a specific TypeScript type.\n */\n",
+          "docComment": "/**\n * Serializer function called for a specific TypeScript type.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1702,7 +1702,7 @@
         {
           "kind": "Function",
           "canonicalReference": "scrubbr!useType:function(1)",
-          "docComment": "/**\n * Override the type that's being serialized. The return value from this function should be used by custom serializers.\n *\n * @example\n *\n * // Convert all `User` types to `RestrictedUser` scrubbr.typeSerializer('User', (data, state) => useType('RestrictedUser'));\n */\n",
+          "docComment": "/**\n * Override the type that's being serialized. The return value from this function should be used by custom serializers.\n *\n * @example\n * ```\n *  // Convert all User types to PublicUser\n *  scrubbr.typeSerializer('User', (data, state) =\\> useType('PublicUser'));\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

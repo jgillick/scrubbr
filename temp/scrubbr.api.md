@@ -16,23 +16,18 @@ export type JSONSchemaDefinitions = JSONSchema7 | {
     };
 };
 
-// @public (undocumented)
+// @public
 export enum LogLevel {
-    // (undocumented)
     DEBUG = 4,
-    // (undocumented)
     ERROR = 1,
-    // (undocumented)
     INFO = 3,
-    // (undocumented)
     NONE = 0,
-    // (undocumented)
     WARN = 2
 }
 
 // @public (undocumented)
 class Scrubbr {
-    constructor(schema: string | JSONSchemaDefinitions, options: ScrubbrOptions);
+    constructor(schema: string | JSONSchemaDefinitions, options?: ScrubbrOptions);
     addGenericSerializer(serializer: GenericSerializer): void;
     addTypeSerializer(typeName: string | string[], serializer: TypeSerializer): void;
     clone(options?: ScrubbrOptions): Scrubbr;

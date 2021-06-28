@@ -200,6 +200,7 @@ export default class Scrubbr {
    * @param data - The data to serialize
    * @param context - Any data you want sent to the custom serializer functions.
    * @param options - Set options for just this serialization.
+   * @public
    */
   async serialize<Type = any>(
     schemaType: string,
@@ -242,7 +243,7 @@ export default class Scrubbr {
 
   /**
    * Traverse into a node of data on an object to serialize.
-   * @param node: The data object to start from
+   * @param node - The data object to start from
    * @param state - The serializing state.
    */
   private async walkData(node: Object, state: ScrubbrState): Promise<Object> {
@@ -295,7 +296,7 @@ export default class Scrubbr {
 
   /**
    * Serialize all the items of an array.
-   * @param node[] - The array to serialize
+   * @param node - The array to serialize
    * @param state - The serializing state.
    */
   private async walkArrayNode(node: any[], state: ScrubbrState): Promise<any> {

@@ -2,8 +2,8 @@ name: Documentation
 on: [push]
 
 jobs:
-  test:
-    name: Unit tests
+  docs:
+    name: Documentation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,6 +16,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install mkdocs mkdocs-cinder
+          npm install
 
       - name: Build
         run: npm run docs:build

@@ -4,6 +4,7 @@ import { LogLevel } from './Logger';
 
 /**
  * Serializer function called for a specific TypeScript type.
+ * @public
  */
 export type TypeSerializer = (
   data: any,
@@ -12,6 +13,7 @@ export type TypeSerializer = (
 
 /**
  * Serializer called for each node within the data object that is being serialized.
+ * @public
  */
 export type GenericSerializer = (
   data: any,
@@ -24,27 +26,31 @@ export type GenericSerializer = (
 export type ScrubbrOptions = {
   /**
    * Set the logger level: LogLevel.NONE, LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG
-   * @default LogLevel.NONE
+   * @defaultValue LogLevel.NONE
+   * @public
    */
   logLevel?: LogLevel;
 
   /**
    * Add indents to better show where in the object it is.
    * This is most useful when logLevel is set to LogLevel.DEBUG.
-   * @default false
+   * @defaultValue false
+   * @public
    */
   logNesting?: boolean | string;
 
   /**
    * A string prefix you want to precede all log messages
-   * @default ""
+   * @defaultValue ""
+   * @public
    */
   logPrefix?: string;
 
   /**
    * Throw an exception on errors that could effect the integrity of your data.
    * Otherwise, the error will just be logged if the log level is set to LogLevel.ERROR or above.
-   * @default true
+   * @defaultValue true
+   * @public
    */
   throwOnError?: boolean;
 };
@@ -55,6 +61,7 @@ export type ScrubbrOptions = {
  *    * All types are defined in the root `definitions` block.
  *    * All references (`$ref`) point to definitions within the JSON object.
  *      (i.e. no external references)
+ * @public
  */
 export type JSONSchemaDefinitions =
   | JSONSchema7

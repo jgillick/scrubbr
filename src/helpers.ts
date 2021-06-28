@@ -3,9 +3,12 @@
  * The return value from this function should be used by custom serializers.
  *
  * @example
- *  // Convert all `User` types to `RestrictedUser`
- *  scrubbr.typeSerializer('User', (data, state) => useType('RestrictedUser'));
+ * ```
+ *  // Convert all User types to PublicUser
+ *  scrubbr.typeSerializer('User', (data, state) =\> useType('PublicUser'));
+ * ```
  *
+ * @public
  */
 export function useType(typeName: string): UseType {
   return new UseType(typeName);

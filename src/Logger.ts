@@ -1,20 +1,48 @@
 import { ScrubbrOptions } from './';
 
+/**
+ * The scrubbr log level.
+ * Setting the log level will enabled logging for that level and below.
+ */
 export enum LogLevel {
+  /**
+   * Log additional debug information.
+   * Set logNesting to true to also indent the logs with the data nesting.
+   */
   DEBUG = 4,
+
+  /**
+   * Display basic information as well as warnings and errors.
+   */
   INFO = 3,
+
+  /**
+   * Log warnings and errors.
+   */
   WARN = 2,
+
+  /**
+   * Log errors
+   */
   ERROR = 1,
+
+  /**
+   * Disable logging.
+   */
   NONE = 0,
 }
 
+/**
+ * Used by Scrubbr for logging.
+ * @internal
+ */
 export class Logger {
   logLevel: LogLevel;
   prefix: string;
   nestingString: string | boolean = false;
-  nestLevel: number = 0;
+  nestLevel = 0;
 
-  constructor(options: ScrubbrOptions, nestLevel: number = 0) {
+  constructor(options: ScrubbrOptions, nestLevel = 0) {
     this.logLevel = options.logLevel || LogLevel.NONE;
     this.nestLevel = nestLevel;
 
