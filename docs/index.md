@@ -1,6 +1,8 @@
 # Scrubbr
 
-Serializing data in node shouldn't be hard. You shouldn't have to worry about accidentally leaking private information through your APIs. If you're using TypeScript, you already have everythign you need to effortlessly serialize and transform your data.
+Serializing data in node shouldn't be hard. You shouldn't have to worry about accidentally leaking private information through your APIs.
+
+If you're using TypeScript, you already have everythign you need to effortlessly serialize and transform your data.
 
 ![](images/example.png)
 

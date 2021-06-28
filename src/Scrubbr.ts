@@ -36,11 +36,11 @@ export default class Scrubbr {
    */
   constructor(
     schema: string | JSONSchemaDefinitions,
-    options: ScrubbrOptions
+    options: ScrubbrOptions = {}
   ) {
     this.options = {
       ...defaultOptions,
-      ...(options || {}),
+      ...options,
     };
     this.logger = new Logger(options);
     this.loadSchema(schema);
@@ -213,6 +213,13 @@ export default class Scrubbr {
     }
     this.logger.info(`Serializing data with TS type: '${schemaType}'`);
 
+    // Merge contexts
+    context = {
+      ...this.globalContext,
+      ...context,
+    }
+    this.logger.debug(`Using context: '${JSON.stringify(context, null, '  ')}'`);
+
     // Create state
     options = {
       ...this.options,
@@ -225,20 +232,11 @@ export default class Scrubbr {
       context
     );
 
-    // Validate JSON and clone
-    const cloned = JSON.parse(JSON.stringify(data));
-
-    // Merge contexts
-    context = {
-      ...this.globalContext,
-      ...context,
-    }
-    this.logger.debug(`Using context: '${JSON.stringify(context, null, '  ')}'`);
-
     // Serialize
     state.rootSchemaType = schemaType;
     state.schemaType = schemaType;
-    const serialized = (await this.walkData(cloned, state)) as Type;
+    const clonedData = JSON.parse(JSON.stringify(data));
+    const serialized = (await this.walkData(clonedData, state)) as Type;
     return serialized;
   }
 
