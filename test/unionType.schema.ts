@@ -1,26 +1,26 @@
-type SimpleTypeUnion = {
-  value: OptionOne | OptionTwo;
+type UnionTypeTestSimple = {
+  value: UnionTypeTestType1 | UnionTypeTestType2;
 };
 
-type PrimitiveUnion = {
+type UnionTypeTestPrimitive = {
   value: string | boolean;
 };
 
-type MixedUnion = {
-  value: OptionOne | null;
+type UnionTypeTestMixed = {
+  value: UnionTypeTestType1 | null;
 };
 
-type UnionAlias = {
+type UnionTypeTestAlias = {
   value: AliasedUnion;
 };
 
-type OptionOne = {
+type UnionTypeTestType1 = {
   nodeA: string;
   nodeB: string;
 };
 
-type OptionTwo = {
+type UnionTypeTestType2 = {
   nodeA: string;
 };
 
-type AliasedUnion = OptionOne | OptionTwo;
+type AliasedUnion = UnionTypeTestType1 | UnionTypeTestType2;

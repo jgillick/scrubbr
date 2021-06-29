@@ -42,6 +42,23 @@ describe('Type serializers', () => {
     expect(typeBSerializerFn).toHaveBeenCalledTimes(4);
   });
 
+  test('override type and transform node', async () => {
+    scrubbr.addTypeSerializer('TargetTypeA', () => {
+      const newData = {
+        id: 'bazz',
+        value: 'boo',
+      };
+      useType('TargetTypeB', newData);
+    });
+
+    const data = {
+      node: { value: 'foo' },
+    };
+    const serialized = await scrubbr.serialize('TypeSerializerTest', data);
+    expect(serialized.node.id).toBe('bazz');
+    expect(serialized.node.value).toBe('boo');
+  });
+
   test('union type', async () => {
     const typeASerializerFn = jest.fn((data, _state) => data);
     const typeBSerializerFn = jest.fn((data, _state) => data);
@@ -78,5 +95,5 @@ describe('Type serializers', () => {
 
     expect(serializerFn).toHaveBeenCalledTimes(2);
     expect(Array.from(receivedTypes)).toEqual(['TargetTypeA', 'TargetTypeB']);
-  })
+  });
 });

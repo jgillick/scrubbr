@@ -101,4 +101,26 @@ describe('Generic serializer', () => {
     const serialized = await scrubbr.serialize('GenericSerializerTest', data);
     expect(serialized.child.extra).toBe('bar');
   });
+
+  test('override type and transform node', async () => {
+    serializerFn.mockImplementation((data, state) => {
+      if (state.path == 'child') {
+        const newData = {
+          node: 'boo',
+          extra: 'woo',
+        };
+        return useType('GenericSerializerExtended', newData);
+      }
+      return data;
+    });
+
+    const serialized = await scrubbr.serialize('GenericSerializerTest', {
+      child: {
+        node: 'foo',
+        extra: 'bar',
+      },
+    });
+    expect(serialized.child.node).toBe('boo');
+    expect(serialized.child.extra).toBe('woo');
+  });
 });

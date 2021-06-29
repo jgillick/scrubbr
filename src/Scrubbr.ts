@@ -13,13 +13,14 @@ import {
 } from '.';
 
 const defaultOptions = {
-  logLevel: LogLevel.NONE,
+  logLevel: LogLevel.WARN,
   logNesting: false,
   logPrefix: '',
   throwOnError: true,
 };
 
-type ObjectNode = Record<string, any>;
+type ObjectNode = Record<string, unknown>;
+type ContextObject = Record<string, unknown>;
 
 export default class Scrubbr {
   options: ScrubbrOptions;
@@ -27,7 +28,7 @@ export default class Scrubbr {
   private schema: JSONSchema7 = {};
   private typeSerializers = new Map<string, TypeSerializer[]>();
   private genericSerializers: GenericSerializer[] = [];
-  private globalContext: object = {};
+  private globalContext: ContextObject = {};
 
   /**
    * Create new scrubbr serializer
@@ -91,7 +92,7 @@ export default class Scrubbr {
   /**
    * Replace the schema with a new one
    */
-  loadSchema(schema: string | JSONSchemaDefinitions) {
+  loadSchema(schema: string | JSONSchemaDefinitions): void {
     // Load typescript file
     if (typeof schema == 'string') {
       this.logger.info(`Loading typescript file: ${schema}`);
@@ -129,7 +130,7 @@ export default class Scrubbr {
    * @param typeName - The name of the type to return the schema for.
    * @returns The JSON schema for the type, or null if it was not found.
    */
-   getSchemaFor(typeName: string): JSONSchema7 | null {
+  getSchemaFor(typeName: string): JSONSchema7 | null {
     const definitions = this.schema?.definitions || {};
     if (typeof definitions[typeName] === 'undefined') {
       return null;
@@ -142,8 +143,11 @@ export default class Scrubbr {
    * @param typeName - One or more type names to register the serializer for.
    * @param serializer - The serializer function.
    */
-  addTypeSerializer(typeName: string | string[], serializer: TypeSerializer) {
-    const typeNames = (Array.isArray(typeName)) ? typeName : [typeName];
+  addTypeSerializer(
+    typeName: string | string[],
+    serializer: TypeSerializer
+  ): void {
+    const typeNames = Array.isArray(typeName) ? typeName : [typeName];
     typeNames.forEach((name) => {
       this.logger.debug(`Adding custom serializer for type: ${name}`);
       const serializerList = this.typeSerializers.get(name) || [];
@@ -156,7 +160,7 @@ export default class Scrubbr {
    * Add a generic custom serializer function that's called for each node in the object.
    * @param serializer - The serializer function.
    */
-   addGenericSerializer(serializer: GenericSerializer) {
+  addGenericSerializer(serializer: GenericSerializer): void {
     this.logger.debug(`Adding generic serializer`);
     this.genericSerializers.push(serializer);
   }
@@ -168,7 +172,7 @@ export default class Scrubbr {
    * @param merge - Automatically merge this context with the existing global context (defaults false)
    *                Otherwise, the global context will be overwritten.
    */
-  setGlobalContext(context: object, merge: boolean = false) {
+  setGlobalContext(context: ContextObject, merge = false): ContextObject {
     if (merge) {
       this.globalContext = {
         ...this.globalContext,
@@ -177,12 +181,13 @@ export default class Scrubbr {
     } else {
       this.globalContext = context;
     }
+    return this.globalContext;
   }
 
   /**
    * Retrieve the global context object.
    */
-  getGlobalContext() {
+  getGlobalContext(): ContextObject {
     return this.globalContext;
   }
 
@@ -204,8 +209,8 @@ export default class Scrubbr {
    */
   async serialize<Type = any>(
     schemaType: string,
-    data: object,
-    context: object = {},
+    data: unknown,
+    context: ContextObject = {},
     options: ScrubbrOptions = {}
   ): Promise<Type> {
     const schema = this.getSchemaFor(schemaType);
@@ -218,8 +223,10 @@ export default class Scrubbr {
     context = {
       ...this.globalContext,
       ...context,
-    }
-    this.logger.debug(`Using context: '${JSON.stringify(context, null, '  ')}'`);
+    };
+    this.logger.debug(
+      `Using context: '${JSON.stringify(context, null, '  ')}'`
+    );
 
     // Create state
     options = {
@@ -246,7 +253,7 @@ export default class Scrubbr {
    * @param node - The data object to start from
    * @param state - The serializing state.
    */
-  private async walkData(node: Object, state: ScrubbrState): Promise<Object> {
+  private async walkData(node: unknown, state: ScrubbrState): Promise<unknown> {
     const serializedNode = await this.serializeNode(node, state);
 
     if (serializedNode === null) {
@@ -254,7 +261,7 @@ export default class Scrubbr {
     } else if (Array.isArray(serializedNode)) {
       return await this.walkArrayNode(serializedNode, state);
     } else if (typeof serializedNode === 'object') {
-      return await this.walkObjectNode(serializedNode, state);
+      return await this.walkObjectNode(serializedNode as ObjectNode, state);
     }
     return serializedNode;
   }
@@ -267,19 +274,24 @@ export default class Scrubbr {
   private async walkObjectNode(
     node: ObjectNode,
     state: ScrubbrState
-  ): Promise<Object> {
+  ): Promise<unknown> {
     const nodeProps = Object.entries(node);
     const schemaProps = state.schemaDef.properties || {};
     const filteredNode: ObjectNode = {};
     const pathPrefix = state.path ? `${state.path}.` : '';
 
     for (let i = 0; i < nodeProps.length; i++) {
-      let [name, value] = nodeProps[i];
-      let propSchema = schemaProps[name] as JSONSchema7;
+      const [name, value] = nodeProps[i];
+      const propSchema = schemaProps[name] as JSONSchema7;
 
       const propPath = `${pathPrefix}${name}`;
       state.logger.debug(`[PATH] ${propPath}`);
-      const propState = state.createNodeState(value, name, propPath, propSchema);
+      const propState = state.createNodeState(
+        value,
+        name,
+        propPath,
+        propSchema
+      );
 
       // Property not defined in the schema, do not serialize property
       if (!propSchema) {
@@ -299,7 +311,10 @@ export default class Scrubbr {
    * @param node - The array to serialize
    * @param state - The serializing state.
    */
-  private async walkArrayNode(node: any[], state: ScrubbrState): Promise<any> {
+  private async walkArrayNode(
+    node: unknown[],
+    state: ScrubbrState
+  ): Promise<unknown> {
     const schema = state.schemaDef;
     const listSchema = schema.items as JSONSchema7 | JSONSchema7[];
 
@@ -320,7 +335,7 @@ export default class Scrubbr {
         value,
         i,
         itemPath,
-        itemSchema as JSONSchema7,
+        itemSchema as JSONSchema7
       );
 
       // Skip items past the tuple length
@@ -340,7 +355,10 @@ export default class Scrubbr {
    * @param data - The data to serialize
    * @param state - The serializing state.
    */
-  private async serializeNode(data: any, state: ScrubbrState): Promise<Object> {
+  private async serializeNode(
+    data: unknown,
+    state: ScrubbrState
+  ): Promise<unknown> {
     const originalDef = state.schemaDef;
 
     // Get typescript type for the schema definition
@@ -382,7 +400,7 @@ export default class Scrubbr {
       return null;
     }
 
-    let schemaList = (schema?.allOf ||
+    const schemaList = (schema?.allOf ||
       schema?.anyOf ||
       schema?.oneOf ||
       []) as JSONSchema7[];
@@ -392,7 +410,7 @@ export default class Scrubbr {
     }
 
     // Get all the types we have definitions for
-    let foundTypes = new Map<string, JSONSchema7>();
+    const foundTypes = new Map<string, JSONSchema7>();
     schemaList.forEach((schemaRef) => {
       const refPath = schemaRef.$ref;
       if (!refPath) {
@@ -432,7 +450,7 @@ export default class Scrubbr {
 
       const others = typeNames.filter((n) => n != chosenType);
       state.logger.warn(
-        `Guessing at type '${chosenType}' over ${others} because it has the fewest properties (you can explicitly override this selection with the 'useType()' function.).`
+        `Guessing: Using type '${chosenType}', instead of '${others}', because it has the fewest properties at object path: '${state.path}'.\n(You can explicitly override this selection with the 'useType()' function in a custom serializer).`
       );
     } else {
       state.logger.debug(`Type: '${chosenType}'`);
@@ -487,9 +505,9 @@ export default class Scrubbr {
    * Run serializers on the data path
    */
   private async runGenericSerializers(
-    dataNode: Object,
+    dataNode: unknown,
     state: ScrubbrState
-  ): Promise<Object> {
+  ): Promise<unknown> {
     if (!this.genericSerializers.length) {
       return dataNode;
     }
@@ -498,30 +516,38 @@ export default class Scrubbr {
       `Running ${this.genericSerializers.length} generic serializers`
     );
 
-    return this.genericSerializers.reduce((promise, serializerFn) => {
-      return promise.then((data) => {
-        const serialized = serializerFn(data, state);
-        if (serialized instanceof UseType) {
-          state.logger.debug(`Overriding type: '${serialized.typeName}'`);
-          if (serialized.typeName === state.schemaType) {
-            state.logger.warn(`Trying to override type with the same type ('${serialized.typeName}') at object path: ${state.path}`);
-          }
+    let serialized = dataNode;
+    for (let i = 0; i < this.genericSerializers.length; i++) {
+      const serializerFn = this.genericSerializers[i];
+      const result = await serializerFn.call(null, serialized, state);
 
-          state = this.setStateSchemaDefinition(serialized.typeName, state);
-          return data;
+      if (result instanceof UseType) {
+        state.logger.debug(`Overriding type: '${result.typeName}'`);
+        if (result.typeName === state.schemaType) {
+          state.logger.warn(
+            `Trying to override type with the same type ('${result.typeName}') at object path: ${state.path}`
+          );
         }
-        return serialized;
-      });
-    }, Promise.resolve(dataNode));
+
+        if (typeof result.data !== 'undefined') {
+          serialized = result.data;
+        }
+        state = this.setStateSchemaDefinition(result.typeName, state);
+      } else {
+        serialized = result;
+      }
+    }
+
+    return serialized;
   }
 
   /**
    * Run serializers on property data
    */
   private async runTypeSerializers(
-    dataNode: Object,
+    dataNode: unknown,
     state: ScrubbrState
-  ): Promise<Object> {
+  ): Promise<unknown> {
     const typeName = state.schemaType;
     if (!typeName) {
       return dataNode;
@@ -541,29 +567,38 @@ export default class Scrubbr {
       `Running ${serializerFns.length} serializers for type '${typeName}'`
     );
 
+    let serialized = dataNode;
     for (let i = 0; i < serializerFns.length; i++) {
-      const serialized = await serializerFns[i].call(null, dataNode, state);
+      const result = await serializerFns[i].call(null, dataNode, state);
 
       // Change type
-      if (serialized instanceof UseType && serialized.typeName !== typeName) {
-        const { typeName } = serialized;
+      if (result instanceof UseType) {
         state.logger.debug(`Overriding type: '${typeName}'`);
 
-        if (serialized.typeName === state.schemaType) {
-          state.logger.warn(`Trying to override type with the same type ('${serialized.typeName}') at object path: ${state.path}`);
+        // Serialized data
+        if (typeof result.data !== 'undefined') {
+          serialized = result.data;
+        }
+
+        // No type change
+        if (result.typeName === state.schemaType) {
+          state.logger.warn(
+            `Trying to override type with the same type ('${result.typeName}') at object path: ${state.path}`
+          );
         } else {
-          // Check for circular reference
-          const circularRef = this.isCircularReference(typeName, state);
+          // Stop serializing this type and switch to the new type, if it's not a circular reference
+          const circularRef = this.isCircularReference(result.typeName, state);
           if (!circularRef) {
-            state = this.setStateSchemaDefinition(typeName, state);
-            return await this.runTypeSerializers(dataNode, state);
+            state = this.setStateSchemaDefinition(result.typeName, state);
+            return await this.runTypeSerializers(serialized, state);
           }
         }
+      } else {
+        serialized = result;
       }
-      dataNode = serialized;
     }
 
-    return dataNode;
+    return serialized;
   }
 
   /**
@@ -584,7 +619,9 @@ export default class Scrubbr {
    * Handle an error by either throwing an exception or logging it.
    */
   private error(message: string, state?: ScrubbrState) {
-    const throwOnError = (state) ? state?.options?.throwOnError : this.options.throwOnError;
+    const throwOnError = state
+      ? state?.options?.throwOnError
+      : this.options.throwOnError;
     if (throwOnError) {
       throw new Error(message);
     }

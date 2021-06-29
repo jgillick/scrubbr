@@ -7,18 +7,18 @@ import { LogLevel } from './Logger';
  * @public
  */
 export type TypeSerializer = (
-  data: any,
+  data: unknown,
   state: ScrubbrState
-) => any | Promise<any>;
+) => unknown | Promise<unknown>;
 
 /**
  * Serializer called for each node within the data object that is being serialized.
  * @public
  */
 export type GenericSerializer = (
-  data: any,
+  data: unknown,
   state: ScrubbrState
-) => any | Promise<any>;
+) => unknown | Promise<unknown>;
 
 /**
  * Options passed to the Scrubbr constructor
@@ -26,7 +26,7 @@ export type GenericSerializer = (
 export type ScrubbrOptions = {
   /**
    * Set the logger level: LogLevel.NONE, LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG
-   * @defaultValue LogLevel.NONE
+   * @defaultValue LogLevel.WARN
    * @public
    */
   logLevel?: LogLevel;
