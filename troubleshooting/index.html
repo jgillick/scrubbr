@@ -135,6 +135,8 @@
                 
             <li class="second-level"><a href="#debug-output">Debug output</a></li>
                 
+            <li class="second-level"><a href="#understanding-the-warning-guessing-using-type-xyz-instead-of-abc-because-it-has-the-fewest-properties">Understanding the warning: "Guessing: Using type 'xyz', instead of 'abc' , because it has the fewest properties"</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -160,6 +162,29 @@ const scrubbr = new Scrubbr('./schema.ts', { logLevel: LogLevel.DEBUG });
   logLevel: LogLevel.DEBUG,
   logNesting: true, // or enter a string if you want to use a custom indention
 });
+</code></pre>
+<h2 id="understanding-the-warning-guessing-using-type-xyz-instead-of-abc-because-it-has-the-fewest-properties">Understanding the warning: <em>"Guessing: Using type 'xyz', instead of 'abc' , because it has the fewest properties"</em><a class="headerlink" href="#understanding-the-warning-guessing-using-type-xyz-instead-of-abc-because-it-has-the-fewest-properties" title="Permanent link">&para;</a></h2>
+<pre><code>Guessing: Using type 'UserPublic', instead of 'UserRestricted', because it has the fewest properties at object path: 'user'.
+(You can explicitly override this selection with the 'useType()' function in a custom serializer).
+</code></pre>
+<p>This warning happens when you have a type like this:</p>
+<pre><code class="language-typescript">type Payload = {
+  user: UserPublic | UserRestricted;
+};
+</code></pre>
+<p>When Scrubbr gets to the <code>user</code> property, it doesn't know exactly how to choose between <code>UserPublic</code> and <code>UserRestricted</code> and so it makes a guess and chooses the type that defines the fewest properties (most restrictive). In the interest of performance, Scrubbr avoids doing deep introspection and type checking.</p>
+<p>To avoid this warning, use a type alias return the <code>useType</code> function in a serializer:</p>
+<pre><code class="language-typescript">type Payload = {
+  user: User;
+};
+type User = UserPublic | UserRestricted;
+</code></pre>
+<pre><code class="language-typescript">scrubbr.addTypeSerializer('User', (data, state) =&gt; {
+  if (/* type choosing logic here */) {
+    return useType('UserRestricted');
+  }
+  return useType('UserPublic');
+}
 </code></pre></div>
         
         
