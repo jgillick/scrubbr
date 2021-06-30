@@ -84,7 +84,7 @@ async function api() {
 
 ### 4. Try it yourself
 
-You can play with an example yourself by modifying the files in [./example](https://github.com/jgillick/scrubbr/tree/main/example) and then running:
+You can play with an more complex example yourself by modifying the files in [./example](https://github.com/jgillick/scrubbr/tree/main/example) and then running:
 
 ```shell
 npm run example
