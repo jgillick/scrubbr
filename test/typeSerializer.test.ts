@@ -45,17 +45,15 @@ describe('Type serializers', () => {
   test('override type and transform node', async () => {
     scrubbr.addTypeSerializer('TargetTypeA', () => {
       const newData = {
-        id: 'bazz',
         value: 'boo',
       };
-      useType('TargetTypeB', newData);
+      return useType('TargetTypeB', newData);
     });
 
     const data = {
       node: { value: 'foo' },
     };
     const serialized = await scrubbr.serialize('TypeSerializerTest', data);
-    expect(serialized.node.id).toBe('bazz');
     expect(serialized.node.value).toBe('boo');
   });
 

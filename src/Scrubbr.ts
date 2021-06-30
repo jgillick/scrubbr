@@ -521,6 +521,12 @@ export default class Scrubbr {
       const serializerFn = this.genericSerializers[i];
       const result = await serializerFn.call(null, serialized, state);
 
+      if (typeof result === 'undefined') {
+        state.logger.warn(
+          `Generic serializer returned 'undefined' at object path: ${state.path}`
+        );
+      }
+
       if (result instanceof UseType) {
         state.logger.debug(`Overriding type: '${result.typeName}'`);
         if (result.typeName === state.schemaType) {
@@ -570,6 +576,12 @@ export default class Scrubbr {
     let serialized = dataNode;
     for (let i = 0; i < serializerFns.length; i++) {
       const result = await serializerFns[i].call(null, dataNode, state);
+
+      if (typeof result === 'undefined') {
+        state.logger.warn(
+          `Serializer for type '${typeName}' returned 'undefined' at object path: ${state.path}`
+        );
+      }
 
       // Change type
       if (result instanceof UseType) {
