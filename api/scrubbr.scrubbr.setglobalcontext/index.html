@@ -132,7 +132,7 @@
 <h2 id="scrubbrsetglobalcontext-method">Scrubbr.setGlobalContext() method<a class="headerlink" href="#scrubbrsetglobalcontext-method" title="Permanent link">&para;</a></h2>
 <p>Set the global context object, that will be automatically merged with the context passed to the serialize function. You can use this for setting things like the logged-in user, at a global level.</p>
 <p><b>Signature:</b></p>
-<pre><code class="language-typescript">setGlobalContext(context: object, merge?: boolean): void;
+<pre><code class="language-typescript">setGlobalContext(context: ContextObject, merge?: boolean): ContextObject;
 </code></pre>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -146,7 +146,7 @@
 <tbody>
 <tr>
 <td>context</td>
-<td>object</td>
+<td>ContextObject</td>
 <td>Any object you want to set as the context.</td>
 </tr>
 <tr>
@@ -157,7 +157,7 @@
 </tbody>
 </table>
 <p><b>Returns:</b></p>
-<p>void</p></div>
+<p>ContextObject</p></div>
         
         
     </div>
