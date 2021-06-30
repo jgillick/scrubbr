@@ -134,7 +134,7 @@
 <p>Serialize data based on a TypeScript type.</p>
 <p>You can influence the return type by using the generic angle brackets:</p>
 <p><b>Signature:</b></p>
-<pre><code class="language-typescript">serialize&lt;Type = any&gt;(schemaType: string, data: unknown, context?: ContextObject, options?: ScrubbrOptions): Promise&lt;Type&gt;;
+<pre><code class="language-typescript">serialize&lt;Type = any&gt;(schemaType: string, data: object, context?: object, options?: ScrubbrOptions): Promise&lt;Type&gt;;
 </code></pre>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -153,12 +153,12 @@
 </tr>
 <tr>
 <td>data</td>
-<td>unknown</td>
+<td>object</td>
 <td>The data to serialize</td>
 </tr>
 <tr>
 <td>context</td>
-<td>ContextObject</td>
+<td>object</td>
 <td>Any data you want sent to the custom serializer functions.</td>
 </tr>
 <tr>
