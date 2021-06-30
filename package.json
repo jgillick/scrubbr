@@ -3,6 +3,7 @@
   "version": "0.0.1-alpha.10",
   "description": "Serialize and sanitize JSON data using TypeScript.",
   "repository": "https://github.com/jgillick/scrubbr",
+  "homepage": "https://jgillick.github.io/scrubbr/",
   "main": "dist/index.js",
   "scripts": {
     "prepare": "npm run build",
