@@ -188,7 +188,7 @@ type User = {
 // Load early and cache to a shared variable.
 const scrubbr = new Scrubbr('./schema.ts');
 
-async function api() {
+function api() {
   const data = getUsers();
 
   // Serialize the data based on the UserList type defined in schema.ts
@@ -321,5 +321,5 @@ async function api() {
 
 <!--
 MkDocs version : 1.2.2
-Build Date UTC : 2021-08-03 20:31:36.667455+00:00
+Build Date UTC : 2021-08-03 20:38:05.170543+00:00
 -->
