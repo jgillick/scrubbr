@@ -6,7 +6,7 @@ const scrubbr = new Scrubbr(`${__dirname}/recordType.schema.ts`, {
 });
 
 describe('<Record>', () => {
-  test('return all matching properties', async () => {
+  test('return all matching properties', () => {
     const data = {
       value: {
         foo: 'bar',
@@ -14,7 +14,7 @@ describe('<Record>', () => {
         123: 345,
       },
     };
-    const serialized = await scrubbr.serialize('RecordTest', data);
+    const serialized = scrubbr.serialize('RecordTest', data);
     expect(serialized.value).toBeDefined();
     expect(serialized.value).toEqual(
       expect.objectContaining({

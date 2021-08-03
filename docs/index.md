@@ -65,7 +65,7 @@ async function api() {
   const data = getUsers();
 
   // Serialize the data based on the UserList type defined in schema.ts
-  return await scrubbr.serialize('UserList', data);
+  return scrubbr.serialize('UserList', data);
 }
 ```
 

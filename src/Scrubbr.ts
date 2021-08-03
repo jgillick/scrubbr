@@ -207,12 +207,12 @@ export default class Scrubbr {
    * @param options - Set options for just this serialization.
    * @public
    */
-  async serialize<Type = any>(
+  serialize<Type = any>(
     schemaType: string,
     data: unknown,
     context: ContextObject = {},
     options: ScrubbrOptions = {}
-  ): Promise<Type> {
+  ): Type {
     const schema = this.getSchemaFor(schemaType);
     if (!schema) {
       throw this.error(`Could not find the type: ${schemaType}`);
@@ -244,7 +244,7 @@ export default class Scrubbr {
     state.rootSchemaType = schemaType;
     state.schemaType = schemaType;
     const clonedData = JSON.parse(JSON.stringify(data));
-    const serialized = (await this.walkData(clonedData, state)) as Type;
+    const serialized = this.walkData(clonedData, state) as Type;
     return serialized;
   }
 
@@ -253,15 +253,15 @@ export default class Scrubbr {
    * @param node - The data object to start from
    * @param state - The serializing state.
    */
-  private async walkData(node: unknown, state: ScrubbrState): Promise<unknown> {
-    const serializedNode = await this.serializeNode(node, state);
+  private walkData(node: unknown, state: ScrubbrState): unknown {
+    const serializedNode = this.serializeNode(node, state);
 
     if (serializedNode === null) {
       return serializedNode;
     } else if (Array.isArray(serializedNode)) {
-      return await this.walkArrayNode(serializedNode, state);
+      return this.walkArrayNode(serializedNode, state);
     } else if (typeof serializedNode === 'object') {
-      return await this.walkObjectNode(serializedNode as ObjectNode, state);
+      return this.walkObjectNode(serializedNode as ObjectNode, state);
     }
     return serializedNode;
   }
@@ -271,10 +271,7 @@ export default class Scrubbr {
    * @param node - The object to serialize
    * @param state - The serializing state.
    */
-  private async walkObjectNode(
-    node: ObjectNode,
-    state: ScrubbrState
-  ): Promise<unknown> {
+  private walkObjectNode(node: ObjectNode, state: ScrubbrState): unknown {
     const nodeProps = Object.entries(node);
     const schemaProps = state.schemaDef.properties || {};
     const filteredNode: ObjectNode = {};
@@ -301,7 +298,7 @@ export default class Scrubbr {
         continue;
       }
 
-      filteredNode[name] = await this.walkData(value, propState);
+      filteredNode[name] = this.walkData(value, propState);
     }
     return filteredNode;
   }
@@ -311,10 +308,7 @@ export default class Scrubbr {
    * @param node - The array to serialize
    * @param state - The serializing state.
    */
-  private async walkArrayNode(
-    node: unknown[],
-    state: ScrubbrState
-  ): Promise<unknown> {
+  private walkArrayNode(node: unknown[], state: ScrubbrState): unknown {
     const schema = state.schemaDef;
     const listSchema = schema.items as JSONSchema7 | JSONSchema7[];
 
@@ -344,7 +338,7 @@ export default class Scrubbr {
         break;
       }
 
-      filteredNode[i] = await this.walkData(value, itemState);
+      filteredNode[i] = this.walkData(value, itemState);
     }
 
     return filteredNode;
@@ -355,10 +349,7 @@ export default class Scrubbr {
    * @param data - The data to serialize
    * @param state - The serializing state.
    */
-  private async serializeNode(
-    data: unknown,
-    state: ScrubbrState
-  ): Promise<unknown> {
+  private serializeNode(data: unknown, state: ScrubbrState): unknown {
     const originalDef = state.schemaDef;
 
     // Get typescript type for the schema definition
@@ -372,8 +363,8 @@ export default class Scrubbr {
     }
 
     // Run serializers
-    data = await this.runGenericSerializers(data, state);
-    data = await this.runTypeSerializers(data, state);
+    data = this.runGenericSerializers(data, state);
+    data = this.runTypeSerializers(data, state);
 
     // If the type definition is an alias to a union, walk one level deeper
     const { schemaDef } = state;
@@ -504,10 +495,10 @@ export default class Scrubbr {
   /**
    * Run serializers on the data path
    */
-  private async runGenericSerializers(
+  private runGenericSerializers(
     dataNode: unknown,
     state: ScrubbrState
-  ): Promise<unknown> {
+  ): unknown {
     if (!this.genericSerializers.length) {
       return dataNode;
     }
@@ -519,7 +510,7 @@ export default class Scrubbr {
     let serialized = dataNode;
     for (let i = 0; i < this.genericSerializers.length; i++) {
       const serializerFn = this.genericSerializers[i];
-      const result = await serializerFn.call(null, serialized, state);
+      const result = serializerFn.call(null, serialized, state);
 
       if (typeof result === 'undefined') {
         state.logger.warn(
@@ -550,10 +541,7 @@ export default class Scrubbr {
   /**
    * Run serializers on property data
    */
-  private async runTypeSerializers(
-    dataNode: unknown,
-    state: ScrubbrState
-  ): Promise<unknown> {
+  private runTypeSerializers(dataNode: unknown, state: ScrubbrState): unknown {
     const typeName = state.schemaType;
     if (!typeName) {
       return dataNode;
@@ -575,7 +563,7 @@ export default class Scrubbr {
 
     let serialized = dataNode;
     for (let i = 0; i < serializerFns.length; i++) {
-      const result = await serializerFns[i].call(null, dataNode, state);
+      const result = serializerFns[i].call(null, dataNode, state);
 
       if (typeof result === 'undefined') {
         state.logger.warn(
@@ -602,7 +590,7 @@ export default class Scrubbr {
           const circularRef = this.isCircularReference(result.typeName, state);
           if (!circularRef) {
             state = this.setStateSchemaDefinition(result.typeName, state);
-            return await this.runTypeSerializers(serialized, state);
+            return this.runTypeSerializers(serialized, state);
           }
         }
       } else {

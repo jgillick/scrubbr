@@ -20,8 +20,8 @@ describe('Union types', () => {
     });
   });
 
-  test('automatically choose between two types', async () => {
-    await scrubbr.serialize('UnionTypeTestSimple', {
+  test('automatically choose between two types', () => {
+    scrubbr.serialize('UnionTypeTestSimple', {
       value: {
         nodeA: 'foo',
         nodeB: 'bar',
@@ -32,18 +32,18 @@ describe('Union types', () => {
     expect(pathTypes.get('value')).toBe('UnionTypeTestType2');
   });
 
-  test('choose between primitive types', async () => {
-    await scrubbr.serialize('UnionTypeTestPrimitive', { value: 'test' });
+  test('choose between primitive types', () => {
+    scrubbr.serialize('UnionTypeTestPrimitive', { value: 'test' });
     expect(pathTypes.get('value')).toBe(null);
   });
 
-  test('union between TypeScript type and primitive', async () => {
-    await scrubbr.serialize('UnionTypeTestMixed', { value: 'test' });
+  test('union between TypeScript type and primitive', () => {
+    scrubbr.serialize('UnionTypeTestMixed', { value: 'test' });
     expect(pathTypes.get('value')).toBe('UnionTypeTestType1');
   });
 
-  test('Aliased union type', async () => {
-    await scrubbr.serialize('UnionTypeTestAlias', {
+  test('Aliased union type', () => {
+    scrubbr.serialize('UnionTypeTestAlias', {
       value: {
         nodeA: 'foo',
         nodeB: 'bar',
@@ -52,7 +52,7 @@ describe('Union types', () => {
     expect(pathTypes.get('value')).toBe('UnionTypeTestType2');
   });
 
-  test('Override type', async () => {
+  test('Override type', () => {
     firstSerializerFn.mockImplementation((data, state) => {
       if (state.path == 'value') {
         return useType('UnionTypeTestType1');
@@ -60,7 +60,7 @@ describe('Union types', () => {
       return data;
     });
 
-    const output = await scrubbr.serialize('UnionTypeTestSimple', {
+    const output = scrubbr.serialize('UnionTypeTestSimple', {
       value: {
         nodeA: 'foo',
         nodeB: 'bar',
@@ -71,7 +71,7 @@ describe('Union types', () => {
     expect(output.value.nodeB).toBe('bar');
   });
 
-  // test('change type and override value', async () => {
+  // test('change type and override value', () => {
   //   firstSerializerFn.mockImplementation((data, state) => {
   //     if (state.path == 'value') {
   //       const newNodeData = {
@@ -83,7 +83,7 @@ describe('Union types', () => {
   //     return data;
   //   });
 
-  //   const output = await scrubbr.serialize('UnionTypeTestSimple', {
+  //   const output = scrubbr.serialize('UnionTypeTestSimple', {
   //     value: {
   //       nodeA: 'foo',
   //       nodeB: 'bar',

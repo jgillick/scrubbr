@@ -17,7 +17,7 @@ Converting the TypeScript to JSON can take a few moments. If you want to optimiz
 Internally, Scrubbr uses the [ts-json-schema-generator](https://www.npmjs.com/package/ts-json-schema-generator) library to convert TypeScript to JSON schema.
 
 !!! warning
-    You cannot load just any JSON schema into scrubbr, it needs to follow the output conventions of [ts-json-schema-generator](https://www.npmjs.com/package/ts-json-schema-generator):
+You cannot load just any JSON schema into scrubbr, it needs to follow the output conventions of [ts-json-schema-generator](https://www.npmjs.com/package/ts-json-schema-generator):
 
     * All types are defined in the root `definitions` object.
     * All references (`$ref`) point to definitions within the object. (i.e. no external references)
@@ -50,7 +50,6 @@ You can use `clone()` to create API-specific scrubbrs off the global version. Th
 In this example we want the `userSerializer` used all data serialized and the `commentSerializer` only applied to the comment list API:
 
 ```typescript
-
 // Global config
 const scrubbr = new Scrubbr('./schema.ts');
 scrubbr.addTypeSerializer('User', userSerializer);
@@ -62,7 +61,6 @@ function commentListApi() {
 
   return scrubbr.serialize('CommentList', data);
 }
-
 ```
 
 ## Schema Validation
@@ -77,7 +75,7 @@ const scrubbr = new Scrubbr('./schema.ts');
 
 async function main() {
   // Serialize
-  const output = await scrubbr.serialize('UserList', data);
+  const output = scrubbr.serialize('UserList', data);
   const jsonSchema = scrubbr.getSchemaFor('UserList');
 
   // Validate

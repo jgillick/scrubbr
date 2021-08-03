@@ -24,7 +24,8 @@ describe('Circular references', () => {
     });
 
     const data = { value: 'test' };
-    const scrub = scrubbr.serialize('CircularReferenceTest1', data);
-    return expect(scrub).rejects.toThrowError();
+    return expect(() =>
+      scrubbr.serialize('CircularReferenceTest1', data)
+    ).toThrowError();
   }, 500);
 });

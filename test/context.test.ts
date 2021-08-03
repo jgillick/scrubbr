@@ -16,43 +16,43 @@ describe('Context', () => {
     });
   });
 
-  test('pass context to serializers', async () => {
+  test('pass context to serializers', () => {
     const testContext = { hello: 'world' };
-    await scrubbr.serialize('ContextTest', data, testContext);
+    scrubbr.serialize('ContextTest', data, testContext);
     expect(receivedContext.hello).toBe('world');
   });
 
-  test('no context passes empty object', async () => {
-    await scrubbr.serialize('ContextTest', data);
+  test('no context passes empty object', () => {
+    scrubbr.serialize('ContextTest', data);
     expect(typeof receivedContext).toBe('object');
     expect(Object.keys(receivedContext).length).toBe(0);
   });
 
   describe('global context', () => {
-    test('merge global context with passed context object', async () => {
+    test('merge global context with passed context object', () => {
       const globalContext = { foo: 'bar' };
       const passedContext = { hello: 'world' };
 
       scrubbr.setGlobalContext(globalContext);
-      await scrubbr.serialize('ContextTest', data, passedContext);
+      scrubbr.serialize('ContextTest', data, passedContext);
       expect(Object.keys(receivedContext)).toEqual(['foo', 'hello']);
     });
 
-    test('passed context overrides global context', async () => {
+    test('passed context overrides global context', () => {
       const globalContext = { foo: 'bar' };
       const passedContext = { foo: 'boo' };
 
       scrubbr.setGlobalContext(globalContext);
-      await scrubbr.serialize('ContextTest', data, passedContext);
+      scrubbr.serialize('ContextTest', data, passedContext);
       expect(Object.keys(receivedContext)).toEqual(['foo']);
       expect(receivedContext.foo).toEqual('boo');
     });
 
-    test('global context still used if no context is passed', async () => {
+    test('global context still used if no context is passed', () => {
       const globalContext = { foo: 'bar' };
 
       scrubbr.setGlobalContext(globalContext);
-      await scrubbr.serialize('ContextTest', data);
+      scrubbr.serialize('ContextTest', data);
       expect(receivedContext.foo).toEqual('bar');
     });
   });

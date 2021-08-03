@@ -8,7 +8,7 @@ describe('Type serializers', () => {
     scrubbr = new Scrubbr(`${__dirname}/typeSerializer.schema.ts`);
   });
 
-  test('call serializer for each matching type', async () => {
+  test('call serializer for each matching type', () => {
     const values: string[] = [];
     const serializerFn = jest.fn((data, _state) => {
       values.push(data.value);
@@ -21,13 +21,13 @@ describe('Type serializers', () => {
       child: [{ node: { value: 'baz' } }, { node: { value: 'boo' } }], // TargetTypeA[]
       other: { value: 'nope' }, // TargetTypeB
     };
-    await scrubbr.serialize('TypeSerializerTest', data);
+    scrubbr.serialize('TypeSerializerTest', data);
 
     expect(serializerFn).toHaveBeenCalledTimes(3);
     expect(values).toEqual(expect.arrayContaining(['foo', 'baz', 'boo']));
   });
 
-  test('override type', async () => {
+  test('override type', () => {
     const typeBSerializerFn = jest.fn((data, _state) => data);
 
     scrubbr.addTypeSerializer('TargetTypeA', () => useType('TargetTypeB'));
@@ -38,11 +38,11 @@ describe('Type serializers', () => {
       child: [{ node: { value: 'baz' } }, { node: { value: 'boo' } }], // TargetTypeA[]
       other: { value: 'nope' }, // TargetTypeB
     };
-    await scrubbr.serialize('TypeSerializerTest', data);
+    scrubbr.serialize('TypeSerializerTest', data);
     expect(typeBSerializerFn).toHaveBeenCalledTimes(4);
   });
 
-  test('override type and transform node', async () => {
+  test('override type and transform node', () => {
     scrubbr.addTypeSerializer('TargetTypeA', () => {
       const newData = {
         value: 'boo',
@@ -53,11 +53,11 @@ describe('Type serializers', () => {
     const data = {
       node: { value: 'foo' },
     };
-    const serialized = await scrubbr.serialize('TypeSerializerTest', data);
+    const serialized = scrubbr.serialize('TypeSerializerTest', data);
     expect(serialized.node.value).toBe('boo');
   });
 
-  test('union type', async () => {
+  test('union type', () => {
     const typeASerializerFn = jest.fn((data, _state) => data);
     const typeBSerializerFn = jest.fn((data, _state) => data);
 
@@ -67,12 +67,12 @@ describe('Type serializers', () => {
     const data = {
       node: { value: 'foo' }, // TargetTypeA | TargetTypeB
     };
-    await scrubbr.serialize('TypeSerializerUnionTest', data);
+    scrubbr.serialize('TypeSerializerUnionTest', data);
     expect(typeASerializerFn).toHaveBeenCalledTimes(0);
     expect(typeBSerializerFn).toHaveBeenCalledTimes(1);
   });
 
-  test('add multiple types to a single serializer', async () => {
+  test('add multiple types to a single serializer', () => {
     let receivedTypes = new Set<string>();
 
     const serializerFn = jest.fn((data, state) => {
@@ -89,7 +89,7 @@ describe('Type serializers', () => {
     };
 
     scrubbr.addTypeSerializer(['TargetTypeA', 'TargetTypeB'], serializerFn);
-    await scrubbr.serialize('TypeSerializerTest', data, {});
+    scrubbr.serialize('TypeSerializerTest', data, {});
 
     expect(serializerFn).toHaveBeenCalledTimes(2);
     expect(Array.from(receivedTypes)).toEqual(['TargetTypeA', 'TargetTypeB']);

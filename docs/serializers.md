@@ -6,14 +6,12 @@ Custom serializers give you the power to transform data and influence Scrubbr.
 
 The most common serializer is the Type Serializer. This function is called whenever Scrubbr encounters a specific TypeScript type _anywhere_ in the data.
 
-
 ```typescript
 scrubbr.addTypeSerializer('User', (data, state) => {
   // Do custom things here for User typed data
   return data;
 });
 ```
-
 
 ## Context
 
@@ -23,10 +21,10 @@ For example, it could be the ID of the logged-in user:
 
 ```typescript
 const context = {
-  userId: 5
-}
+  userId: 5,
+};
 scrubbr.addTypeSerializer('User', serializeUser);
-const serialized = await scrubbr.serialize('MemberList', data, context);
+const serialized = scrubbr.serialize('MemberList', data, context);
 
 // Only return the logged-in user
 function serializeUser(data, state) {
@@ -43,7 +41,6 @@ function serializeUser(data, state) {
 You can also set the context globally and it will be merged with the context passed into the serialize function. For example:
 
 ```typescript
-
 function userLoggedIn(user) {
   scrubbr.setGlobalContext({ loggedInUserId: user.id });
 }
@@ -52,9 +49,8 @@ function api() {
   const context = {
     timezone: 'America/Los_Angeles',
   };
-  const serialized = await scrubbr.serialize('MemberList', data, context);
+  const serialized = scrubbr.serialize('MemberList', data, context);
 }
-
 ```
 
 In this example, the context passed to serializers will potentially include both `timezone` and `loggedInUserId`, if the `userLoggedIn` function were called.
@@ -71,22 +67,22 @@ type User = {
   name: string;
   email: string;
   password: string;
-}
+};
 
 type PublicUser = {
   id: number;
   name: string;
-}
+};
 ```
 
 ```typescript
 import Scrubbr, { useType } from '../src/';
 
 const context = {
-  userId: 5
-}
+  userId: 5,
+};
 scrubbr.addTypeSerializer('User', serializeUser);
-const serialized = await scrubbr.serialize('MemberList', data, context);
+const serialized = scrubbr.serialize('MemberList', data, context);
 
 // Convert User to PublicUser for everyone but the logged-in user
 function serializeUser(data, state) {
@@ -111,12 +107,12 @@ scrubbr.addGenericSerializer((data, state) => {
 
 Inside the serializer you'll often uses the following state properties to determine where you are:
 
-* `state.path` - The object path to where you are (i.e. `blog.posts[1].author.name`)
-* `state.name` - The name of the property that is being serialized.
-* `state.index` - If the node being serialized is an item in an array, this is the index in that array.
+- `state.path` - The object path to where you are (i.e. `blog.posts[1].author.name`)
+- `state.name` - The name of the property that is being serialized.
+- `state.index` - If the node being serialized is an item in an array, this is the index in that array.
 
 !!! note
-    In most cases Type Serializers provide a cleaner and more elegant way to serialize your data than Generic Serializers.
+In most cases Type Serializers provide a cleaner and more elegant way to serialize your data than Generic Serializers.
 
 Let's say we want to convert every `startTime` date value to the local timezone.
 
@@ -124,21 +120,21 @@ Let's say we want to convert every `startTime` date value to the local timezone.
 type Event = {
   name: string;
   startTime: Date;
-}
+};
 type Meeting = {
   name: string;
   startTime: string;
   recurring: string;
-}
+};
 type AppointmentList = {
   events: Event[];
   meeting: Meeting[];
-}
+};
 ```
 
 ```typescript
 import moment from 'moment-timezone';
-import Scrubbr, {ScrubbrState} from 'scrubbr';
+import Scrubbr, { ScrubbrState } from 'scrubbr';
 
 const scrubbr = new Scrubbr('./schema.ts');
 
@@ -159,7 +155,7 @@ function api() {
     timezone: 'America/Los_Angeles',
   };
   scrubbr.addGenericSerializer(serializeStartTime);
-  const serialized = await scrubbr.serialize('AppointmentList', data, context);
+  const serialized = scrubbr.serialize('AppointmentList', data, context);
 }
 
 function getData() {
@@ -168,18 +164,17 @@ function getData() {
       {
         name: 'Pool party',
         startTime: '2021-06-26T19:00:00.000Z',
-      }
+      },
     ],
     meeting: [
       {
         name: 'Daily standup',
         startTime: '2021-06-25T17:00:00.000Z',
         recurring: 'daily',
-      }
-    ]
-  }
+      },
+    ],
+  };
 }
-
 ```
 
 ### Alternate Example
@@ -193,21 +188,21 @@ type StartTime = Date;
 type Event = {
   name: string;
   startTime: StartTime;
-}
+};
 type Meeting = {
   name: string;
   startTime: StartTime;
-}
+};
 type AppointmentList = {
   events: Event[];
   meeting: Meeting[];
   recurring: string;
-}
+};
 ```
 
 ```typescript
 import moment from 'moment-timezone';
-import Scrubbr, {ScrubbrState} from 'scrubbr';
+import Scrubbr, { ScrubbrState } from 'scrubbr';
 
 const scrubbr = new Scrubbr('./schema.ts');
 
@@ -224,7 +219,7 @@ function api() {
     timezone: 'America/Los_Angeles',
   };
   scrubbr.addTypeSerializer('StartTime', serializeStartTime);
-  const serialized = await scrubbr.serialize('AppointmentList', data, context);
+  const serialized = scrubbr.serialize('AppointmentList', data, context);
 }
 
 function getData() {
@@ -233,16 +228,15 @@ function getData() {
       {
         name: 'Pool party',
         startTime: '2021-06-26T19:00:00.000Z',
-      }
+      },
     ],
     meeting: [
       {
         name: 'Daily standup',
         startTime: '2021-06-25T17:00:00.000Z',
         recurring: 'daily',
-      }
-    ]
-  }
+      },
+    ],
+  };
 }
-
 ```

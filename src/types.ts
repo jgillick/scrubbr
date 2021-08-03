@@ -6,19 +6,13 @@ import { LogLevel } from './Logger';
  * Serializer function called for a specific TypeScript type.
  * @public
  */
-export type TypeSerializer = (
-  data: unknown,
-  state: ScrubbrState
-) => unknown | Promise<unknown>;
+export type TypeSerializer = (data: unknown, state: ScrubbrState) => unknown;
 
 /**
  * Serializer called for each node within the data object that is being serialized.
  * @public
  */
-export type GenericSerializer = (
-  data: unknown,
-  state: ScrubbrState
-) => unknown | Promise<unknown>;
+export type GenericSerializer = (data: unknown, state: ScrubbrState) => unknown;
 
 /**
  * Options passed to the Scrubbr constructor

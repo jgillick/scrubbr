@@ -4,20 +4,20 @@ import Scrubbr from '../src/';
 const scrubbr = new Scrubbr(`${__dirname}/extraProps.schema.ts`);
 
 describe('do not serialize properties not in schema', () => {
-  test('root object', async () => {
+  test('root object', () => {
     const data = {
       value1: 1,
       value2: 'foo',
       extraValue: 'foo@boo.com',
     };
-    const serialized = await scrubbr.serialize('ExtraPropsTest', data);
+    const serialized = scrubbr.serialize('ExtraPropsTest', data);
     expect(serialized).toEqual(
       expect.objectContaining({ value1: 1, value2: 'foo' })
     );
     expect(serialized.extraValue).toBeUndefined();
   });
 
-  test('child object', async () => {
+  test('child object', () => {
     const data = {
       child: {
         value1: 1,
@@ -25,14 +25,14 @@ describe('do not serialize properties not in schema', () => {
         extraValue: 'foo@boo.com',
       },
     };
-    const serialized = await scrubbr.serialize('ExtraPropsChildTest', data);
+    const serialized = scrubbr.serialize('ExtraPropsChildTest', data);
     expect(serialized.child).toEqual(
       expect.objectContaining({ value1: 1, value2: 'foo' })
     );
     expect(serialized.child.extraValue).toBeUndefined();
   });
 
-  test('as array item', async () => {
+  test('as array item', () => {
     const data = {
       list: [
         {
@@ -47,7 +47,7 @@ describe('do not serialize properties not in schema', () => {
         },
       ],
     };
-    const serialized = await scrubbr.serialize('ExtraPropsArrayTest', data);
+    const serialized = scrubbr.serialize('ExtraPropsArrayTest', data);
     expect(serialized.list[0]).toEqual(
       expect.objectContaining({ value1: 1, value2: 'foo' })
     );

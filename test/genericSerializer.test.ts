@@ -19,14 +19,14 @@ describe('Generic serializer', () => {
     scrubbr.addGenericSerializer(serializerFn);
   });
 
-  test('call serializer for every node of the object', async () => {
+  test('call serializer for every node of the object', () => {
     const paths: string[] = [];
     serializerFn.mockImplementation((data, state) => {
       paths.push(state.path);
       return data;
     });
 
-    const serialized = await scrubbr.serialize('GenericSerializerTest', data);
+    const serialized = scrubbr.serialize('GenericSerializerTest', data);
 
     expect(serializerFn).toBeCalled();
     expect(paths).toEqual([
@@ -42,7 +42,7 @@ describe('Generic serializer', () => {
     expect(serialized.child.extra).toBeUndefined();
   });
 
-  test('pass context to generic serializers', async () => {
+  test('pass context to generic serializers', () => {
     const context = { foo: 'bar' };
 
     // Check that the context is passed to each node
@@ -61,10 +61,10 @@ describe('Generic serializer', () => {
       return data;
     });
 
-    await scrubbr.serialize('GenericSerializerTest', data, context);
+    scrubbr.serialize('GenericSerializerTest', data, context);
   });
 
-  test('modify node', async () => {
+  test('modify node', () => {
     serializerFn.mockImplementation((data, state) => {
       if (state.path == 'child.node') {
         return 'Changed!';
@@ -72,11 +72,11 @@ describe('Generic serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('GenericSerializerTest', data);
+    const serialized = scrubbr.serialize('GenericSerializerTest', data);
     expect(serialized.child.node).toBe('Changed!');
   });
 
-  test('remove part of the tree', async () => {
+  test('remove part of the tree', () => {
     const paths: string[] = [];
     serializerFn.mockImplementation((data, state) => {
       paths.push(state.path);
@@ -86,11 +86,11 @@ describe('Generic serializer', () => {
       return data;
     });
 
-    await scrubbr.serialize('GenericSerializerTest', data);
+    scrubbr.serialize('GenericSerializerTest', data);
     expect(paths).toEqual(['', 'child', 'child.node', 'children']);
   });
 
-  test('override node type', async () => {
+  test('override node type', () => {
     serializerFn.mockImplementation((data, state) => {
       if (state.path == 'child') {
         return useType('GenericSerializerExtended');
@@ -98,11 +98,11 @@ describe('Generic serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('GenericSerializerTest', data);
+    const serialized = scrubbr.serialize('GenericSerializerTest', data);
     expect(serialized.child.extra).toBe('bar');
   });
 
-  test('override type and transform node', async () => {
+  test('override type and transform node', () => {
     serializerFn.mockImplementation((data, state) => {
       if (state.path == 'child') {
         const newData = {
@@ -114,7 +114,7 @@ describe('Generic serializer', () => {
       return data;
     });
 
-    const serialized = await scrubbr.serialize('GenericSerializerTest', {
+    const serialized = scrubbr.serialize('GenericSerializerTest', {
       child: {
         node: 'foo',
         extra: 'bar',
