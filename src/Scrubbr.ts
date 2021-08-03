@@ -418,7 +418,7 @@ export default class Scrubbr {
       }
 
       let typeName = refPath.replace(/#\/definitions\/(.*)/, '$1');
-      typeName = decodeURI(typeName);
+      typeName = decodeURIComponent(typeName);
       const type = this.getSchemaFor(typeName);
       if (type) {
         foundTypes.set(typeName, type);
