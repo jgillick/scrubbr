@@ -7,8 +7,6 @@ const scrubbr = new Scrubbr(`${__dirname}/recordType.schema.ts`, {
 
 describe('<Record>', () => {
   test('return all matching properties', async () => {
-    console.log(JSON.stringify(scrubbr.getSchema(), null, '  '));
-
     const data = {
       value: {
         foo: 'bar',
