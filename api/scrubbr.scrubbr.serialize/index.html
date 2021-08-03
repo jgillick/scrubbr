@@ -134,7 +134,7 @@
 <p>Serialize data based on a TypeScript type.</p>
 <p>You can influence the return type by using the generic angle brackets:</p>
 <p><b>Signature:</b></p>
-<pre><code class="language-typescript">serialize&lt;Type = any&gt;(schemaType: string, data: unknown, context?: ContextObject, options?: ScrubbrOptions): Promise&lt;Type&gt;;
+<pre><code class="language-typescript">serialize&lt;Type = any&gt;(schemaType: string, data: unknown, context?: ContextObject, options?: ScrubbrOptions): Type;
 </code></pre>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -169,7 +169,7 @@
 </tbody>
 </table>
 <p><b>Returns:</b></p>
-<p>Promise&lt;Type&gt;</p>
+<p>Type</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <pre><code> scrubbr.serialize&lt;UserList&gt;('UserList', data);
 

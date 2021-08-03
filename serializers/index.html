@@ -158,10 +158,10 @@
 <p>You can pass a custom object to the serialize function, and it will be passed to your serializers inside the state param.</p>
 <p>For example, it could be the ID of the logged-in user:</p>
 <pre><code class="language-typescript">const context = {
-  userId: 5
-}
+  userId: 5,
+};
 scrubbr.addTypeSerializer('User', serializeUser);
-const serialized = await scrubbr.serialize('MemberList', data, context);
+const serialized = scrubbr.serialize('MemberList', data, context);
 
 // Only return the logged-in user
 function serializeUser(data, state) {
@@ -174,8 +174,7 @@ function serializeUser(data, state) {
 </code></pre>
 <h3 id="global-context">Global Context<a class="headerlink" href="#global-context" title="Permanent link">&para;</a></h3>
 <p>You can also set the context globally and it will be merged with the context passed into the serialize function. For example:</p>
-<pre><code class="language-typescript">
-function userLoggedIn(user) {
+<pre><code class="language-typescript">function userLoggedIn(user) {
   scrubbr.setGlobalContext({ loggedInUserId: user.id });
 }
 
@@ -183,9 +182,8 @@ function api() {
   const context = {
     timezone: 'America/Los_Angeles',
   };
-  const serialized = await scrubbr.serialize('MemberList', data, context);
+  const serialized = scrubbr.serialize('MemberList', data, context);
 }
-
 </code></pre>
 <p>In this example, the context passed to serializers will potentially include both <code>timezone</code> and <code>loggedInUserId</code>, if the <code>userLoggedIn</code> function were called.</p>
 <h2 id="change-types">Change Types<a class="headerlink" href="#change-types" title="Permanent link">&para;</a></h2>
@@ -196,20 +194,20 @@ function api() {
   name: string;
   email: string;
   password: string;
-}
+};
 
 type PublicUser = {
   id: number;
   name: string;
-}
+};
 </code></pre>
 <pre><code class="language-typescript">import Scrubbr, { useType } from '../src/';
 
 const context = {
-  userId: 5
-}
+  userId: 5,
+};
 scrubbr.addTypeSerializer('User', serializeUser);
-const serialized = await scrubbr.serialize('MemberList', data, context);
+const serialized = scrubbr.serialize('MemberList', data, context);
 
 // Convert User to PublicUser for everyone but the logged-in user
 function serializeUser(data, state) {
@@ -235,25 +233,25 @@ function serializeUser(data, state) {
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In most cases Type Serializers provide a cleaner and more elegant way to serialize your data than Generic Serializers.</p>
 </div>
+<p>In most cases Type Serializers provide a cleaner and more elegant way to serialize your data than Generic Serializers.</p>
 <p>Let's say we want to convert every <code>startTime</code> date value to the local timezone.</p>
 <pre><code class="language-typescript">type Event = {
   name: string;
   startTime: Date;
-}
+};
 type Meeting = {
   name: string;
   startTime: string;
   recurring: string;
-}
+};
 type AppointmentList = {
   events: Event[];
   meeting: Meeting[];
-}
+};
 </code></pre>
 <pre><code class="language-typescript">import moment from 'moment-timezone';
-import Scrubbr, {ScrubbrState} from 'scrubbr';
+import Scrubbr, { ScrubbrState } from 'scrubbr';
 
 const scrubbr = new Scrubbr('./schema.ts');
 
@@ -274,7 +272,7 @@ function api() {
     timezone: 'America/Los_Angeles',
   };
   scrubbr.addGenericSerializer(serializeStartTime);
-  const serialized = await scrubbr.serialize('AppointmentList', data, context);
+  const serialized = scrubbr.serialize('AppointmentList', data, context);
 }
 
 function getData() {
@@ -283,18 +281,17 @@ function getData() {
       {
         name: 'Pool party',
         startTime: '2021-06-26T19:00:00.000Z',
-      }
+      },
     ],
     meeting: [
       {
         name: 'Daily standup',
         startTime: '2021-06-25T17:00:00.000Z',
         recurring: 'daily',
-      }
-    ]
-  }
+      },
+    ],
+  };
 }
-
 </code></pre>
 <h3 id="alternate-example">Alternate Example<a class="headerlink" href="#alternate-example" title="Permanent link">&para;</a></h3>
 <p>But let's see a more elegant way to handle the previous example. Instead of using the crude generic serializer, you can apply a consistent type to <code>startTime</code>
@@ -304,19 +301,19 @@ and use a type serializer.</p>
 type Event = {
   name: string;
   startTime: StartTime;
-}
+};
 type Meeting = {
   name: string;
   startTime: StartTime;
-}
+};
 type AppointmentList = {
   events: Event[];
   meeting: Meeting[];
   recurring: string;
-}
+};
 </code></pre>
 <pre><code class="language-typescript">import moment from 'moment-timezone';
-import Scrubbr, {ScrubbrState} from 'scrubbr';
+import Scrubbr, { ScrubbrState } from 'scrubbr';
 
 const scrubbr = new Scrubbr('./schema.ts');
 
@@ -333,7 +330,7 @@ function api() {
     timezone: 'America/Los_Angeles',
   };
   scrubbr.addTypeSerializer('StartTime', serializeStartTime);
-  const serialized = await scrubbr.serialize('AppointmentList', data, context);
+  const serialized = scrubbr.serialize('AppointmentList', data, context);
 }
 
 function getData() {
@@ -342,18 +339,17 @@ function getData() {
       {
         name: 'Pool party',
         startTime: '2021-06-26T19:00:00.000Z',
-      }
+      },
     ],
     meeting: [
       {
         name: 'Daily standup',
         startTime: '2021-06-25T17:00:00.000Z',
         recurring: 'daily',
-      }
-    ]
-  }
+      },
+    ],
+  };
 }
-
 </code></pre></div>
         
         
