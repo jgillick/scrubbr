@@ -41,7 +41,7 @@ const data = {
   ],
 };
 
-async function main() {
+function main() {
   try {
     // Load the typescript schema
     const filepath = path.resolve(`${__dirname}/schema.ts`);
@@ -66,7 +66,7 @@ async function main() {
     });
 
     // Serialize the data
-    const serialized = await scrubbr.serialize('PostList', data, context);
+    const serialized = scrubbr.serialize('PostList', data, context);
     console.log('======================');
     console.log('Serialized Output:');
     console.log('======================');

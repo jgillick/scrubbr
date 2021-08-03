@@ -207,12 +207,12 @@ export default class Scrubbr {
    * @param options - Set options for just this serialization.
    * @public
    */
-  serialize<Type = any>(
+  serialize<SerializedType = any>(
     schemaType: string,
     data: unknown,
     context: ContextObject = {},
     options: ScrubbrOptions = {}
-  ): Type {
+  ): SerializedType {
     const schema = this.getSchemaFor(schemaType);
     if (!schema) {
       throw this.error(`Could not find the type: ${schemaType}`);
@@ -244,7 +244,7 @@ export default class Scrubbr {
     state.rootSchemaType = schemaType;
     state.schemaType = schemaType;
     const clonedData = JSON.parse(JSON.stringify(data));
-    const serialized = this.walkData(clonedData, state) as Type;
+    const serialized = this.walkData(clonedData, state) as SerializedType;
     return serialized;
   }
 

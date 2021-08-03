@@ -61,7 +61,7 @@ import Scrubbr from 'scrubbr';
 // Load early and cache to a shared variable.
 const scrubbr = new Scrubbr('./schema.ts');
 
-async function api() {
+function api() {
   const data = getUsers();
 
   // Serialize the data based on the UserList type defined in schema.ts
