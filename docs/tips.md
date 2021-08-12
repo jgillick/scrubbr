@@ -10,6 +10,20 @@ import { UserList } from 'schema';
 const results = scrubbr.serialize<UserList>('UserList', data);
 ```
 
+## Express Middleware Integration
+
+When you install the [Scrubbr express middleware](https://github.com/jgillick/express-scrubbr) module,
+you can seamlessly use scrubbr in your routes.
+
+```ts
+app.get('/users', (req, res) => {
+  const userData = fetchDataHere();
+  resp.status(200)
+    .scrubbr('UserList') // serialize userData with the UserList type
+    .send(userData);
+}
+```
+
 ## Improving startup performance
 
 Converting the TypeScript to JSON can take a few moments. If you want to optimize startup time, you can save the schema to disk as part of your build step and then pass it directly to Scrubbr.
