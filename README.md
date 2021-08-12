@@ -82,6 +82,19 @@ function api() {
 }
 ```
 
+## Express Middleware
+
+To make things even easier in express, install the [Scrubbr express middleware](https://github.com/jgillick/express-scrubbr),
+
+```ts
+app.get('/users', (req, res) => {
+  const userData = fetchDataHere();
+  resp.status(200)
+    .scrubbr('UserList')
+    .send(userData);
+}
+```
+
 # Documentation
 
 Read the [documentation](https://jgillick.github.io/scrubbr/) to learn how do do more with Scrubbr.
