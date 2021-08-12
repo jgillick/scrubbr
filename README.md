@@ -84,7 +84,7 @@ function api() {
 
 ## Express Middleware
 
-To make things even easier in express, install the [Scrubbr express middleware](https://github.com/jgillick/express-scrubbr),
+To make things even easier in express, install the [Scrubbr express middleware](https://github.com/jgillick/express-scrubbr).
 
 ```ts
 app.get('/users', (req, res) => {
