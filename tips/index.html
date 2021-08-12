@@ -133,6 +133,8 @@
         <li class="first-level active"><a href="#tips-tricks">Tips &amp; Tricks</a></li>
             <li class="second-level"><a href="#typescript-typing">TypeScript Typing</a></li>
                 
+            <li class="second-level"><a href="#express-middleware-integration">Express Middleware Integration</a></li>
+                
             <li class="second-level"><a href="#improving-startup-performance">Improving startup performance</a></li>
                 
                 <li class="third-level"><a href="#build-step">Build Step</a></li>
@@ -151,6 +153,16 @@
 <pre><code class="language-typescript">import { UserList } from 'schema';
 
 const results = scrubbr.serialize&lt;UserList&gt;('UserList', data);
+</code></pre>
+<h2 id="express-middleware-integration">Express Middleware Integration<a class="headerlink" href="#express-middleware-integration" title="Permanent link">&para;</a></h2>
+<p>When you install the <a href="https://github.com/jgillick/express-scrubbr">Scrubbr express middleware</a> module,
+you can seamlessly use scrubbr in your routes.</p>
+<pre><code class="language-ts">app.get('/users', (req, res) =&gt; {
+  const userData = fetchDataHere();
+  resp.status(200)
+    .scrubbr('UserList') // serialize userData with the UserList type
+    .send(userData);
+}
 </code></pre>
 <h2 id="improving-startup-performance">Improving startup performance<a class="headerlink" href="#improving-startup-performance" title="Permanent link">&para;</a></h2>
 <p>Converting the TypeScript to JSON can take a few moments. If you want to optimize startup time, you can save the schema to disk as part of your build step and then pass it directly to Scrubbr.</p>
