@@ -273,7 +273,7 @@ export default class Scrubbr {
    */
   private walkObjectNode(node: ObjectNode, state: ScrubbrState): unknown {
     const nodeProps = Object.entries(node);
-    const schemaProps = state.schemaDef.properties || {};
+    const schemaProps = state.schemaDef?.properties || {};
     const filteredNode: ObjectNode = {};
     const pathPrefix = state.path ? `${state.path}.` : '';
 
