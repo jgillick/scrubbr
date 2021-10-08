@@ -310,7 +310,7 @@ export default class Scrubbr {
    */
   private walkArrayNode(node: unknown[], state: ScrubbrState): unknown {
     const schema = state.schemaDef;
-    const listSchema = schema.items as JSONSchema7 | JSONSchema7[];
+    const listSchema = (schema.items as JSONSchema7 | JSONSchema7[]) || schema;
 
     let tupleSchema: JSONSchema7[] = [];
     const isTuple = Array.isArray(schema.items);
@@ -353,7 +353,7 @@ export default class Scrubbr {
     const originalDef = state.schemaDef;
 
     // Get typescript type for the schema definition
-    const schemaType = this.getTypeName(state.schemaDef, state);
+    const schemaType = this.getTypeName(state.schemaDef, data, state);
     if (schemaType) {
       const circularRef = this.isCircularReference(schemaType, state);
       if (circularRef) {
@@ -386,7 +386,11 @@ export default class Scrubbr {
   /**
    * Return the Typescript type(s), if any, from the schema.
    */
-  private getTypeName(schema: JSONSchema7, state: ScrubbrState): string | null {
+  private getTypeName(
+    schema: JSONSchema7,
+    data: unknown,
+    state: ScrubbrState
+  ): string | null {
     if (!schema) {
       return null;
     }
@@ -399,11 +403,17 @@ export default class Scrubbr {
     if (schema.$ref) {
       schemaList.push(schema);
     }
+    if (schema.items) {
+      schemaList.push(schema.items as JSONSchema7);
+    }
 
     // Get all the types we have definitions for
     const foundTypes = new Map<string, JSONSchema7>();
+    const dataIsArray = Array.isArray(data);
     schemaList.forEach((schemaRef) => {
-      const refPath = schemaRef.$ref;
+      const refPath = dataIsArray
+        ? (schemaRef.items as JSONSchema7)?.$ref
+        : schemaRef.$ref;
       if (!refPath) {
         return;
       }
@@ -444,7 +454,7 @@ export default class Scrubbr {
         `Guessing: Using type '${chosenType}', instead of '${others}', because it has the fewest properties at object path: '${state.path}'.\n(You can explicitly override this selection with the 'useType()' function in a custom serializer).`
       );
     } else {
-      state.logger.debug(`Type: '${chosenType}'`);
+      state.logger.debug(`Type: ${chosenType}${dataIsArray ? '[]' : ''}`);
     }
 
     return chosenType;

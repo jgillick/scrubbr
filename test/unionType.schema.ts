@@ -1,17 +1,25 @@
-type UnionTypeTestSimple = {
+export type UnionTypeTestSimple = {
   value: UnionTypeTestType1 | UnionTypeTestType2;
 };
 
-type UnionTypeTestPrimitive = {
+export type UnionTypeTestPrimitive = {
   value: string | boolean;
 };
 
-type UnionTypeTestMixed = {
+export type UnionTypeTestMixed = {
   value: UnionTypeTestType1 | null;
 };
 
-type UnionTypeTestAlias = {
+export type UnionTypeTestAlias = {
   value: AliasedUnion;
+};
+
+export type UnionTypeSingularAndArray = {
+  value: UnionTypeTestType1 | UnionTypeTestType2[];
+};
+
+export type UnionTypeArrayAndNull = {
+  value: UnionTypeTestType2[] | null;
 };
 
 type UnionTypeTestType1 = {

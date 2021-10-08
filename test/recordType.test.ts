@@ -2,7 +2,7 @@ import 'jest';
 import Scrubbr, { LogLevel } from '../src/';
 
 const scrubbr = new Scrubbr(`${__dirname}/recordType.schema.ts`, {
-  logLevel: LogLevel.DEBUG,
+  logLevel: LogLevel.INFO,
 });
 
 describe('<Record>', () => {

@@ -7,7 +7,9 @@ describe('Union types', () => {
   let firstSerializerFn: jest.Mock;
 
   beforeEach(() => {
-    scrubbr = new Scrubbr(`${__dirname}/unionType.schema.ts`);
+    scrubbr = new Scrubbr(`${__dirname}/unionType.schema.ts`, {
+      logLevel: LogLevel.INFO,
+    });
 
     // Override this later
     firstSerializerFn = jest.fn((data: any) => data);
@@ -69,6 +71,48 @@ describe('Union types', () => {
     expect(pathTypes.get('value')).toBe('UnionTypeTestType1');
     expect(output.value.nodeA).toBe('foo');
     expect(output.value.nodeB).toBe('bar');
+  });
+
+  describe('singular and array', () => {
+    test('with array value', () => {
+      const serialized = scrubbr.serialize('UnionTypeSingularAndArray', {
+        value: [{ nodeA: 'foo' }, { nodeA: 'bar' }],
+      });
+
+      expect(serialized.value.length).toBe(2);
+      expect(serialized.value[0].nodeA).toBe('foo');
+      expect(serialized.value[1].nodeA).toBe('bar');
+    });
+
+    test('with singular value', () => {
+      const serialized = scrubbr.serialize('UnionTypeSingularAndArray', {
+        value: { nodeA: 'foo', nodeB: 'bar' },
+      });
+
+      expect(Array.isArray(serialized.value)).toBe(false);
+      expect(serialized.value.nodeA).toBe('foo');
+      expect(serialized.value.nodeB).toBe('bar');
+    });
+  });
+
+  describe('array and null', () => {
+    test('array value', () => {
+      const serialized = scrubbr.serialize('UnionTypeArrayAndNull', {
+        value: [{ nodeA: 'foo' }, { nodeA: 'bar' }],
+      });
+
+      expect(serialized.value.length).toBe(2);
+      expect(serialized.value[0].nodeA).toBe('foo');
+      expect(serialized.value[1].nodeA).toBe('bar');
+    });
+
+    test('null value', () => {
+      const serialized = scrubbr.serialize('UnionTypeArrayAndNull', {
+        value: null,
+      });
+
+      expect(serialized.value).toBe(null);
+    });
   });
 
   // test('change type and override value', () => {
