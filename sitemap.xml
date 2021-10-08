@@ -2,207 +2,207 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://jgillick.github.io/scrubbr/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/serializers/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/tips/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/troubleshooting/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.genericserializer/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.jsonschemadefinitions/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.loglevel/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr._constructor_/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.addgenericserializer/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.addtypeserializer/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.clone/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.getglobalcontext/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.getschema/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.getschemafor/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.loadschema/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.options/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.serialize/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbr.setglobalcontext/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbroptions/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate._constructor_/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.context/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.createliststate/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.createnodestate/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.index/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.logger/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.name/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.nesting/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.options/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.originaldata/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.parent/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.path/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.rootschematype/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.schemadef/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.schematype/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.scrubbrstate.seentypes/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.typeserializer/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://jgillick.github.io/scrubbr/api/scrubbr.usetype/</loc>
-         <lastmod>2021-10-07</lastmod>
+         <lastmod>2021-10-08</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
